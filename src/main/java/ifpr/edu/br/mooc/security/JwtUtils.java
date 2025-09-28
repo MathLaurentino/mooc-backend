@@ -7,7 +7,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -21,18 +20,17 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class JwtUtils {
 
     @Value("${jwt.secret}")
-    private final String jwtSecret;
+    private String jwtSecret;
 
-    @Value("${jwt.expirationHours}")
-    private final Long jwtExpirationHours;
+    @Value("${jwt.expiration.hours}")
+    private Long jwtExpirationHours;
 
     @Value("${jwt.issuer}")
-    private final String jwtIssuer;
+    private String jwtIssuer;
 
     public String generateToken(User user) {
         return generateToken(new HashMap<>(), user);

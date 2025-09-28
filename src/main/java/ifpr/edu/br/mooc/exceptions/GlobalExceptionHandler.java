@@ -89,6 +89,25 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorMessage);
     }
 
+    @ExceptionHandler({
+            org.springframework.security.access.AccessDeniedException.class,
+            org.springframework.security.authorization.AuthorizationDeniedException.class
+    })
+    public ResponseEntity<ErrorMessage> handleAccessDenied(
+            Exception ex,
+            HttpServletRequest request) {
+
+        log.error("Access denied: {}", ex.getMessage());
+
+        ErrorMessage errorMessage = new ErrorMessage(
+                request,
+                HttpStatus.FORBIDDEN,
+                "Você não tem permissão para acessar este recurso"
+        );
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorMessage);
+    }
+
     // ==================== 404 NOT FOUND ====================
     
     @ExceptionHandler(NotFoundException.class)
