@@ -2,11 +2,17 @@ package ifpr.edu.br.mooc.service;
 
 import ifpr.edu.br.mooc.dto.knowledgeArea.KnowledgeAreaReqDto;
 import ifpr.edu.br.mooc.dto.knowledgeArea.KnowledgeAreaResDto;
+import ifpr.edu.br.mooc.entity.KnowledgeArea;
 import ifpr.edu.br.mooc.exceptions.knowledgeArea.DuplicatedKnowledgeAreaNameException;
 import ifpr.edu.br.mooc.mapper.KnowledgeAreaMapper;
 import ifpr.edu.br.mooc.repository.KnowledgeAreaRepository;
+import ifpr.edu.br.mooc.repository.specification.KnowledgeAreaSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,5 +30,16 @@ public class KnowledgeAreaService {
 
         return mapper.toKnowledgeAreaResDto(createdKnowledgeArea);
     }
+
+    public Page<KnowledgeAreaResDto> getKnowledgeAreas(
+            KnowledgeAreaSpecification spec,
+            Pageable pageable
+    ) {
+        Page<KnowledgeArea> knowledgeAreasPage = repository.findAll(spec, pageable);
+
+        // Converte cada entidade para DTO
+        return knowledgeAreasPage.map(mapper::toKnowledgeAreaResDto);
+    }
+
 
 }
