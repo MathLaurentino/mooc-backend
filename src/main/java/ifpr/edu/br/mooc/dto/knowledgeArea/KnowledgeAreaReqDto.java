@@ -10,6 +10,6 @@ public record KnowledgeAreaReqDto(
         String name,
 
         @NotNull
-        Boolean active
+        boolean visible
 ){
 }

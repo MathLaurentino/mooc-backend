@@ -10,6 +10,6 @@ public record CampusReqDto(
         String name,
 
         @NotNull
-        Boolean active
+        boolean visible
 ){
 }

@@ -8,4 +8,6 @@ public interface KnowledgeAreaRepository extends JpaRepository<KnowledgeArea, Lo
 
     boolean existsByName(String name);
 
+    boolean existsByIdAndVisibleTrue(Long id);
+
 }

@@ -22,7 +22,5 @@ public record CourseCreateReqDto(
         
         @NotNull
         @Positive
-        Integer workload,
-        
-        Boolean visible
+        Integer workload
 ) {}

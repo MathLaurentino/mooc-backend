@@ -4,9 +4,7 @@ import ifpr.edu.br.mooc.dto.course.CourseCreateReqDto;
 import ifpr.edu.br.mooc.dto.course.CourseDetailResDto;
 import ifpr.edu.br.mooc.dto.course.CourseListResDto;
 import ifpr.edu.br.mooc.dto.course.CourseUpdateReqDto;
-import ifpr.edu.br.mooc.entity.Campus;
 import ifpr.edu.br.mooc.entity.Course;
-import ifpr.edu.br.mooc.entity.KnowledgeArea;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -18,16 +16,16 @@ public interface CourseMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "knowledgeArea", source = "knowledgeArea")
-    @Mapping(target = "campus", source = "campus")
-    Course toCourse(CourseCreateReqDto dto, KnowledgeArea knowledgeArea, Campus campus);
+    @Mapping(target = "knowledgeArea", ignore = true)
+    @Mapping(target = "campus", ignore = true)
+    Course toCourse(CourseCreateReqDto dto);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "knowledgeArea", source = "knowledgeArea")
-    @Mapping(target = "campus", source = "campus")
-    void updateCourse(@MappingTarget Course course, CourseUpdateReqDto dto, KnowledgeArea knowledgeArea, Campus campus);
+    @Mapping(target = "knowledgeArea", ignore = true)
+    @Mapping(target = "campus", ignore = true)
+    void updateCourse(@MappingTarget Course course, CourseUpdateReqDto dto);
 
     @Mapping(target = "campus.id", source = "campus.id")
     @Mapping(target = "campus.name", source = "campus.name")

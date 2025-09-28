@@ -8,4 +8,6 @@ public interface CampusRepository extends JpaRepository<Campus, Long>, JpaSpecif
 
     boolean existsByName(String name);
 
+    boolean existsByIdAndVisibleTrue(Long id);
+
 }

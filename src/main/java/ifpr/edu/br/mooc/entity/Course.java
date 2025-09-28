@@ -28,13 +28,20 @@ public class Course {
     @Column(name = "descricao", nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "area_conhecimento_id", nullable = false)
-    private KnowledgeArea knowledgeArea;
+    @Column(name = "area_conhecimento_id", nullable = false)
+    private Long knowledgeAreaId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "campus_id", nullable = false)
+    @JoinColumn(name = "area_conhecimento_id", insertable = false, updatable = false)
+    private KnowledgeArea knowledgeArea;
+
+    @Column(name = "campus_id", nullable = false)
+    private Long campusId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "campus_id", insertable = false, updatable = false)
     private Campus campus;
+
 
     @Column(name = "nome_professor", nullable = false)
     private String professorName;
