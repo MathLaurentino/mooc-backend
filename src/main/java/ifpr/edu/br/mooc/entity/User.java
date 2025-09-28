@@ -1,5 +1,6 @@
 package ifpr.edu.br.mooc.entity;
 
+import ifpr.edu.br.mooc.entity.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -41,6 +42,10 @@ public class User {
     @Column(name = "ativo", nullable = false)
     @Builder.Default
     private Boolean active = true;
+
+    @Column(name = "tipo_usuario", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UserRole userRole;
 
     @Column(name = "data_criacao", nullable = false, updatable = false)
     @CreationTimestamp

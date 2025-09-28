@@ -3,6 +3,7 @@ package ifpr.edu.br.mooc.service;
 import ifpr.edu.br.mooc.dto.user.CreateUserRequest;
 import ifpr.edu.br.mooc.dto.user.UserResponse;
 import ifpr.edu.br.mooc.entity.User;
+import ifpr.edu.br.mooc.entity.enums.UserRole;
 import ifpr.edu.br.mooc.exceptions.base.NotFoundException;
 import ifpr.edu.br.mooc.exceptions.user.DuplicateCpfException;
 import ifpr.edu.br.mooc.exceptions.user.DuplicateEmailException;
@@ -37,6 +38,7 @@ public class UserService {
         User user = userMapper.toEntity(request);
         user.setCpf(cleanCpf);
         user.setPassword(passwordEncoder.encode(request.password()));
+        user.setUserRole(UserRole.STUDENT);
         
         // Save user
         User savedUser = userRepository.save(user);
