@@ -36,7 +36,7 @@ public class CampusControllerImpl implements CampusController {
     @GetMapping
     public ResponseEntity<Page<CampusResDto>> getCampus(
             @RequestParam(value = "name", required = false) String name,
-            @RequestParam(value = "active", required = false) Boolean visible,
+            @RequestParam(value = "visible", required = false) Boolean visible,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "size", defaultValue = "8") Integer size,
             @RequestParam(value = "direction", defaultValue = "asc") String direction

@@ -1,9 +1,6 @@
 package ifpr.edu.br.mooc.controller;
 
-import ifpr.edu.br.mooc.dto.course.CourseCreateReqDto;
-import ifpr.edu.br.mooc.dto.course.CourseDetailResDto;
-import ifpr.edu.br.mooc.dto.course.CourseListResDto;
-import ifpr.edu.br.mooc.dto.course.CourseUpdateReqDto;
+import ifpr.edu.br.mooc.dto.course.*;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 
@@ -13,7 +10,7 @@ public interface CourseController {
 
     ResponseEntity<CourseDetailResDto> updateById(Long id, CourseUpdateReqDto dto);
 
-    ResponseEntity<Void> updateCourseVisibilityById(Long id, Boolean visible);
+    ResponseEntity<CourseDetailResDto> updateCourseVisibilityById(Long id, CoursePatchVisibleDto visible);
 
     ResponseEntity<CourseDetailResDto> getCourseById(Long id);
 
