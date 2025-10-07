@@ -2,6 +2,7 @@ package ifpr.edu.br.mooc.service;
 
 import ifpr.edu.br.mooc.dto.lesson.LessonCreateReqDto;
 import ifpr.edu.br.mooc.dto.lesson.LessonDetailResDto;
+import ifpr.edu.br.mooc.dto.lesson.LessonUpdateReqDto;
 import ifpr.edu.br.mooc.entity.Lesson;
 import ifpr.edu.br.mooc.exceptions.base.NotFoundException;
 import ifpr.edu.br.mooc.mapper.LessonMapper;
@@ -29,6 +30,17 @@ public class LessonService {
         lesson.setLessonOrder(order);
 
         Lesson savedLesson = lessonRepository.save(lesson);
+        return mapper.toLessonDetailResDto(savedLesson);
+    }
+
+    public LessonDetailResDto updateLesson(LessonUpdateReqDto dto, Long id) {
+        Lesson lesson = lessonRepository.findById(id).orElseThrow(
+                () -> new NotFoundException("Aula não encontrada."));
+
+        mapper.updateLesson(lesson, dto);
+
+        Lesson savedLesson = lessonRepository.save(lesson);
+
         return mapper.toLessonDetailResDto(savedLesson);
     }
 
