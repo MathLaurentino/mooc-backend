@@ -1,6 +1,6 @@
 package ifpr.edu.br.mooc.dto.lesson;
 
-public record AulaListaResDto(
+public record LessonListResDto(
         Long id,
         String titulo,
         String miniatura,

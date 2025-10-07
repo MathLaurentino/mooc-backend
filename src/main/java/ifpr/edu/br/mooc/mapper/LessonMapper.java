@@ -1,9 +1,9 @@
 package ifpr.edu.br.mooc.mapper;
 
-import ifpr.edu.br.mooc.dto.lesson.AulaAtualizarReqDto;
-import ifpr.edu.br.mooc.dto.lesson.AulaCriarReqDto;
-import ifpr.edu.br.mooc.dto.lesson.AulaDetalheResDto;
-import ifpr.edu.br.mooc.dto.lesson.AulaListaResDto;
+import ifpr.edu.br.mooc.dto.lesson.LessonUpdateReqDto;
+import ifpr.edu.br.mooc.dto.lesson.LessonCreateReqDto;
+import ifpr.edu.br.mooc.dto.lesson.LessonDetailResDto;
+import ifpr.edu.br.mooc.dto.lesson.LessonListResDto;
 import ifpr.edu.br.mooc.entity.Lesson;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,7 +19,11 @@ public interface LessonMapper {
     @Mapping(target = "course", ignore = true)
     @Mapping(target = "thumbnail", ignore = true)
     @Mapping(target = "lessonOrder", ignore = true)
-    Lesson toLesson(AulaCriarReqDto dto);
+    @Mapping(target = "courseId", source = "cursoId")
+    @Mapping(target = "title", source = "titulo")
+    @Mapping(target = "description", source = "descricao")
+    @Mapping(target = "videoUrl", source = "urlVideo")
+    Lesson toLesson(LessonCreateReqDto dto);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
@@ -27,13 +31,23 @@ public interface LessonMapper {
     @Mapping(target = "course", ignore = true)
     @Mapping(target = "thumbnail", ignore = true)
     @Mapping(target = "lessonOrder", ignore = true)
-    @Mapping(target = "curso_id", ignore = true)
-    void updateLesson(@MappingTarget Lesson lesson, AulaAtualizarReqDto dto);
+    @Mapping(target = "courseId", ignore = true)
+    @Mapping(target = "title", source = "titulo")
+    @Mapping(target = "description", source = "descricao")
+    @Mapping(target = "videoUrl", source = "urlVideo")
+    void updateLesson(@MappingTarget Lesson lesson, LessonUpdateReqDto dto);
 
+    @Mapping(target = "cursoId", source = "courseId")
+    @Mapping(target = "titulo", source = "title")
+    @Mapping(target = "descricao", source = "description")
+    @Mapping(target = "urlVideo", source = "videoUrl")
+    @Mapping(target = "ordemAula", source = "lessonOrder")
     @Mapping(target = "curso.id", source = "course.id")
     @Mapping(target = "curso.nome", source = "course.name")
-    AulaDetalheResDto toAulaDetalheResDto(Lesson lesson);
+    LessonDetailResDto toLessonDetailResDto(Lesson lesson);
 
+    @Mapping(target = "titulo", source = "title")
+    @Mapping(target = "ordemAula", source = "lessonOrder")
     @Mapping(target = "nomeCurso", source = "course.name")
-    AulaListaResDto toAulaListaResDto(Lesson lesson);
+    LessonListResDto toLessonListResDto(Lesson lesson);
 }

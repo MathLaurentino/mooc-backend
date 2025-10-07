@@ -2,7 +2,7 @@ package ifpr.edu.br.mooc.dto.lesson;
 
 import java.time.LocalDateTime;
 
-public record AulaDetalheResDto(
+public record LessonDetailResDto(
         Long id,
         Long cursoId,
         String titulo,
@@ -10,9 +10,7 @@ public record AulaDetalheResDto(
         String miniatura,
         String urlVideo,
         Integer ordemAula,
-        CursoInfo curso,
-        LocalDateTime criadoEm,
-        LocalDateTime atualizadoEm
+        CursoInfo curso
 ) {
     public record CursoInfo(Long id, String nome) {}
 }
