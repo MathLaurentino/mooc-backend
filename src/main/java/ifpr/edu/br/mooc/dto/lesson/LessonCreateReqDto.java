@@ -5,11 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record LessonCreateReqDto(
-        @NotNull(message = "ID do curso é obrigatório")
-        Long cursoId,
-        
         @NotBlank(message = "Título é obrigatório")
-        @Size(min=5, max = 100, message = "Título deve ter no máximo 100 caracteres")
+        @Size(min=5, max = 100, message = "Título deve ter no mínimo 5 caracteres e no máximo 100 caracteres")
         String titulo,
         
         @NotBlank(message = "Descrição é obrigatória")

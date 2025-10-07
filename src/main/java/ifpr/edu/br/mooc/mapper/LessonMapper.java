@@ -19,7 +19,7 @@ public interface LessonMapper {
     @Mapping(target = "course", ignore = true)
     @Mapping(target = "thumbnail", ignore = true)
     @Mapping(target = "lessonOrder", ignore = true)
-    @Mapping(target = "courseId", source = "cursoId")
+    @Mapping(target = "courseId", ignore = true)
     @Mapping(target = "title", source = "titulo")
     @Mapping(target = "description", source = "descricao")
     @Mapping(target = "videoUrl", source = "urlVideo")
@@ -48,6 +48,5 @@ public interface LessonMapper {
 
     @Mapping(target = "titulo", source = "title")
     @Mapping(target = "ordemAula", source = "lessonOrder")
-    @Mapping(target = "nomeCurso", source = "course.name")
     LessonListResDto toLessonListResDto(Lesson lesson);
 }
