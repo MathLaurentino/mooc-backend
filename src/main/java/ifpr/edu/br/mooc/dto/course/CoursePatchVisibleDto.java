@@ -4,6 +4,5 @@ import jakarta.validation.constraints.NotNull;
 
 public record CoursePatchVisibleDto(
         @NotNull
-        boolean visible
-){
-}
+        Boolean visivel
+) {}

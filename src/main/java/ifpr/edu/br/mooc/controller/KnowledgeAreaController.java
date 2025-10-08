@@ -2,7 +2,7 @@ package ifpr.edu.br.mooc.controller;
 
 import ifpr.edu.br.mooc.dto.knowledgeArea.KnowledgeAreaReqDto;
 import ifpr.edu.br.mooc.dto.knowledgeArea.KnowledgeAreaResDto;
-import org.springframework.data.domain.Page;
+import ifpr.edu.br.mooc.dto.pageable.PageResponse;
 import org.springframework.http.ResponseEntity;
 
 public interface KnowledgeAreaController {
@@ -11,7 +11,7 @@ public interface KnowledgeAreaController {
             KnowledgeAreaReqDto dto
     );
 
-    ResponseEntity<Page<KnowledgeAreaResDto>> getKnowledgeAreas(
+    ResponseEntity<PageResponse<KnowledgeAreaResDto>> getKnowledgeAreas(
             String name,
             Boolean visible,
             Integer page,

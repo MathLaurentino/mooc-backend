@@ -6,21 +6,21 @@ import jakarta.validation.constraints.Positive;
 
 public record CourseCreateReqDto(
         @NotBlank
-        String name,
-        
+        String nome,
+
         @NotBlank
-        String description,
-        
+        String descricao,
+
         @NotNull
-        Long knowledgeAreaId,
-        
+        Long areaConhecimentoId,
+
         @NotNull
         Long campusId,
-        
+
         @NotBlank
-        String professorName,
-        
+        String nomeProfessor,
+
         @NotNull
         @Positive
-        Integer workload
+        Integer cargaHoraria
 ) {}

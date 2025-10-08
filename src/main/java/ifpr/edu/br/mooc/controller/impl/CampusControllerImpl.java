@@ -3,11 +3,11 @@ package ifpr.edu.br.mooc.controller.impl;
 import ifpr.edu.br.mooc.controller.CampusController;
 import ifpr.edu.br.mooc.dto.campus.CampusReqDto;
 import ifpr.edu.br.mooc.dto.campus.CampusResDto;
+import ifpr.edu.br.mooc.dto.pageable.PageResponse;
 import ifpr.edu.br.mooc.repository.specification.CampusSpecification;
 import ifpr.edu.br.mooc.service.CampusService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -34,7 +34,7 @@ public class CampusControllerImpl implements CampusController {
 
     @Override
     @GetMapping
-    public ResponseEntity<Page<CampusResDto>> getCampus(
+    public ResponseEntity<PageResponse<CampusResDto>> getCampus(
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "visible", required = false) Boolean visible,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
@@ -45,7 +45,7 @@ public class CampusControllerImpl implements CampusController {
         var pageable = PageRequest.of(page, size, Sort.by(sortDirection, "id"));
         var spec = new CampusSpecification(name, visible);
 
-        Page<CampusResDto> result = service.getCampus(spec, pageable);
+        PageResponse<CampusResDto> result = service.getCampus(spec, pageable);
 
         return ResponseEntity.ok(result);
     }
