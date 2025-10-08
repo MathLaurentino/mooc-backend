@@ -6,18 +6,18 @@ import java.util.List;
 
 public record CourseWithLessonsResDto(
         Long id,
-        String name,
-        String description,
-        String professorName,
-        String thumbnail,
-        Integer workload,
-        Boolean visible,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt,
+        String nome,
+        String descricao,
+        String nomeProfessor,
+        String miniatura,
+        Integer cargaHoraria,
+        Boolean visivel,
+        LocalDateTime criadoEm,
+        LocalDateTime editadoEm,
         CampusDto campus,
-        KnowledgeAreaDto knowledgeArea,
-        List<LessonListResDto> lessons
+        AreaConhecimentoDto areaConhecimento,
+        List<LessonListResDto> aulas
 ) {
-    public record CampusDto(Long id, String name) {}
-    public record KnowledgeAreaDto(Long id, String name) {}
+    public record CampusDto(Long id, String nome) {}
+    public record AreaConhecimentoDto(Long id, String nome) {}
 }

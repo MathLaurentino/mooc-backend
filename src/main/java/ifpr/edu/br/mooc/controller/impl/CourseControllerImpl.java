@@ -54,7 +54,7 @@ public class CourseControllerImpl implements CourseController {
             @PathVariable Long id,
             @RequestBody @Valid CoursePatchVisibleDto dto
     ) {
-        var response = courseService.updateCourseActiveStatus(id, dto.visible());
+        var response = courseService.updateCourseActiveStatus(id, dto.visivel());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
