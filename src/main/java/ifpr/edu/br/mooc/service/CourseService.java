@@ -1,9 +1,6 @@
 package ifpr.edu.br.mooc.service;
 
-import ifpr.edu.br.mooc.dto.course.CourseCreateReqDto;
-import ifpr.edu.br.mooc.dto.course.CourseDetailResDto;
-import ifpr.edu.br.mooc.dto.course.CourseListResDto;
-import ifpr.edu.br.mooc.dto.course.CourseUpdateReqDto;
+import ifpr.edu.br.mooc.dto.course.*;
 import ifpr.edu.br.mooc.entity.Course;
 import ifpr.edu.br.mooc.exceptions.base.NotFoundException;
 import ifpr.edu.br.mooc.mapper.CourseMapper;
@@ -70,11 +67,11 @@ public class CourseService {
         return mapper.toCourseDetailResDto(savedCourse);
     }
 
-    public CourseDetailResDto getById(Long id) {
-        Course course = courseRepository.findById(id).orElseThrow(
+    public CourseWithLessonsResDto getByIdWithLessons(Long id) {
+        Course course = courseRepository.findByIdWithLessons(id).orElseThrow(
                 () -> new NotFoundException("Curso não encontrado."));
 
-        return mapper.toCourseDetailResDto(course);
+        return mapper.toCourseWithLessonsResDto(course);
     }
 
     public Page<CourseListResDto> getKnowledgeAreas(

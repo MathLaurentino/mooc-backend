@@ -15,7 +15,7 @@ public interface CourseController {
 
     ResponseEntity<CourseDetailResDto> updateCourseVisibilityById(Long id, CoursePatchVisibleDto visible);
 
-    ResponseEntity<CourseDetailResDto> getCourseById(Long id);
+    ResponseEntity<CourseWithLessonsResDto> getByIdWithLessons(Long id);
 
     ResponseEntity<Page<CourseListResDto>> getAllCourse(
             String name,

@@ -60,10 +60,10 @@ public class CourseControllerImpl implements CourseController {
 
     @Override
     @GetMapping("/{id}")
-    public ResponseEntity<CourseDetailResDto> getCourseById(
+    public ResponseEntity<CourseWithLessonsResDto> getByIdWithLessons(
             @PathVariable Long id
     ) {
-        var response = courseService.getById(id);
+        var response = courseService.getByIdWithLessons(id);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
