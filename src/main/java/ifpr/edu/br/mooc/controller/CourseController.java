@@ -2,7 +2,7 @@ package ifpr.edu.br.mooc.controller;
 
 import ifpr.edu.br.mooc.dto.course.*;
 import ifpr.edu.br.mooc.dto.lesson.*;
-import org.springframework.data.domain.Page;
+import ifpr.edu.br.mooc.dto.pageable.PageResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -17,7 +17,7 @@ public interface CourseController {
 
     ResponseEntity<CourseWithLessonsResDto> getByIdWithLessons(Long id);
 
-    ResponseEntity<Page<CourseListResDto>> getAllCourse(
+    ResponseEntity<PageResponse<CourseListResDto>> getAllCourse(
             String name,
             Boolean visible,
             Long knowledgeAreaId,

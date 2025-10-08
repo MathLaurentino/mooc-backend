@@ -3,12 +3,12 @@ package ifpr.edu.br.mooc.controller.impl;
 import ifpr.edu.br.mooc.controller.CourseController;
 import ifpr.edu.br.mooc.dto.course.*;
 import ifpr.edu.br.mooc.dto.lesson.*;
+import ifpr.edu.br.mooc.dto.pageable.PageResponse;
 import ifpr.edu.br.mooc.repository.specification.CourseSpecification;
 import ifpr.edu.br.mooc.service.CourseService;
 import ifpr.edu.br.mooc.service.LessonService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -69,7 +69,7 @@ public class CourseControllerImpl implements CourseController {
 
     @Override
     @GetMapping
-    public ResponseEntity<Page<CourseListResDto>> getAllCourse(
+    public ResponseEntity<PageResponse<CourseListResDto>> getAllCourse(
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "visible", required = false) Boolean visible,
             @RequestParam(value = "knowledgeAreaId", required = false) Long knowledgeAreaId,

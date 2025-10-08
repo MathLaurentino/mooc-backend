@@ -1,6 +1,7 @@
 package ifpr.edu.br.mooc.service;
 
 import ifpr.edu.br.mooc.dto.course.*;
+import ifpr.edu.br.mooc.dto.pageable.PageResponse;
 import ifpr.edu.br.mooc.entity.Course;
 import ifpr.edu.br.mooc.exceptions.base.NotFoundException;
 import ifpr.edu.br.mooc.mapper.CourseMapper;
@@ -74,14 +75,13 @@ public class CourseService {
         return mapper.toCourseWithLessonsResDto(course);
     }
 
-    public Page<CourseListResDto> getKnowledgeAreas(
+    public PageResponse<CourseListResDto> getKnowledgeAreas(
             CourseSpecification spec,
             Pageable pageable
     ) {
         Page<Course> coursesPage = courseRepository.findAll(spec, pageable);
 
-        // Converte cada entidade para DTO
-        return coursesPage.map(mapper::toCourseListResDto);
+        return new PageResponse<>(coursesPage.map(mapper::toCourseListResDto));
     }
 
 }
