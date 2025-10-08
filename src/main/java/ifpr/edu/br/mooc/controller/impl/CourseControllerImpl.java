@@ -2,10 +2,7 @@ package ifpr.edu.br.mooc.controller.impl;
 
 import ifpr.edu.br.mooc.controller.CourseController;
 import ifpr.edu.br.mooc.dto.course.*;
-import ifpr.edu.br.mooc.dto.lesson.LessonCreateReqDto;
-import ifpr.edu.br.mooc.dto.lesson.LessonDetailResDto;
-import ifpr.edu.br.mooc.dto.lesson.LessonListResDto;
-import ifpr.edu.br.mooc.dto.lesson.LessonUpdateReqDto;
+import ifpr.edu.br.mooc.dto.lesson.*;
 import ifpr.edu.br.mooc.repository.specification.CourseSpecification;
 import ifpr.edu.br.mooc.service.CourseService;
 import ifpr.edu.br.mooc.service.LessonService;
@@ -89,8 +86,9 @@ public class CourseControllerImpl implements CourseController {
         return ResponseEntity.ok(response);
     }
 
-    // ========== LESSON ENDPOINTS (Nested Resource) ==========
+    // ========== LESSON ENDPOINTS ==========
 
+    @Override
     @PostMapping("/{courseId}/lessons")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<LessonDetailResDto> createLesson(
@@ -101,6 +99,7 @@ public class CourseControllerImpl implements CourseController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @Override
     @GetMapping("/{courseId}/lessons")
     public ResponseEntity<List<LessonListResDto>> getLessonsByCourse(
             @PathVariable Long courseId
@@ -109,6 +108,18 @@ public class CourseControllerImpl implements CourseController {
         return ResponseEntity.ok(response);
     }
 
+    @Override
+    @PatchMapping("/{courseId}/lessons/reorder")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> reorderLessons(
+            @PathVariable Long courseId,
+            @RequestBody @Valid LessonReorderReqDto dto
+    ) {
+        lessonService.reorderLessons(courseId, dto);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
     @GetMapping("/{courseId}/lessons/{lessonId}")
     public ResponseEntity<LessonDetailResDto> getLessonById(
             @PathVariable Long courseId,
@@ -118,6 +129,7 @@ public class CourseControllerImpl implements CourseController {
         return ResponseEntity.ok(response);
     }
 
+    @Override
     @PutMapping("/{courseId}/lessons/{lessonId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<LessonDetailResDto> updateLesson(
