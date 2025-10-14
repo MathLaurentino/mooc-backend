@@ -47,11 +47,11 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
-    @Column(name = "data_criacao", nullable = false, updatable = false)
+    @Column(name = "criado_em", nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @Column(name = "data_atualizacao", nullable = false)
+    @Column(name = "atualizado_em", nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 }

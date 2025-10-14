@@ -7,7 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "matricula")
+@Table(name = "inscricao")
 @Getter
 @Setter
 @Builder
@@ -39,10 +39,10 @@ public class Enrollment {
     @Builder.Default
     private Boolean completed = false;
 
-    @Column(name = "concluido_em")
+    @Column(name = "data_conclusao")
     private LocalDateTime completedAt;
 
-    @Column(name = "criado_em", nullable = false, updatable = false)
+    @Column(name = "data_inscricao", nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
 }
