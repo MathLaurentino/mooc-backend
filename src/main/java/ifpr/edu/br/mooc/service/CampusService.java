@@ -2,6 +2,7 @@ package ifpr.edu.br.mooc.service;
 
 import ifpr.edu.br.mooc.dto.campus.CampusReqDto;
 import ifpr.edu.br.mooc.dto.campus.CampusResDto;
+import ifpr.edu.br.mooc.dto.pageable.PageResponse;
 import ifpr.edu.br.mooc.entity.Campus;
 import ifpr.edu.br.mooc.exceptions.knowledgeArea.DuplicatedKnowledgeAreaNameException;
 import ifpr.edu.br.mooc.mapper.CampusMapper;
@@ -29,13 +30,13 @@ public class CampusService {
         return mapper.toCampusResDto(createdCampus);
     }
 
-    public Page<CampusResDto> getCampus(
+    public PageResponse<CampusResDto> getCampus(
             CampusSpecification spec,
             Pageable pageable
     ) {
         Page<Campus> knowledgeAreasPage = repository.findAll(spec, pageable);
 
-        return knowledgeAreasPage.map(mapper::toCampusResDto);
+        return new PageResponse<>(knowledgeAreasPage.map(mapper::toCampusResDto));
     }
 
 }

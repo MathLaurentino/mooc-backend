@@ -4,17 +4,17 @@ import java.time.LocalDateTime;
 
 public record CourseDetailResDto(
         Long id,
-        String name,
-        String description,
-        String professorName,
-        String thumbnail,
-        Integer workload,
-        Boolean visible,
+        String nome,
+        String descricao,
+        String nomeProfessor,
+        String miniatura,
+        Integer cargaHoraria,
+        Boolean visivel,
         CampusInfo campus,
-        KnowledgeAreaInfo knowledgeArea,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        AreaConhecimentoInfo areaConhecimento,
+        LocalDateTime criadoEm,
+        LocalDateTime editadoEm
 ) {
-    public record CampusInfo(Long id, String name) {}
-    public record KnowledgeAreaInfo(Long id, String name) {}
+    public record CampusInfo(Long id, String nome) {}
+    public record AreaConhecimentoInfo(Long id, String nome) {}
 }

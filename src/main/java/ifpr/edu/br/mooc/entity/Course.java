@@ -6,6 +6,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "curso")
@@ -15,7 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
-@ToString(exclude = {"campus", "knowledgeArea"})
+@ToString(exclude = {"campus", "knowledgeArea", "lessons"})
 public class Course {
 
     @Id
@@ -42,6 +44,9 @@ public class Course {
     @JoinColumn(name = "campus_id", insertable = false, updatable = false)
     private Campus campus;
 
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Lesson> lessons = new ArrayList<>();
 
     @Column(name = "nome_professor", nullable = false)
     private String professorName;
@@ -60,7 +65,7 @@ public class Course {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @Column(name = "editado_em", nullable = false)
+    @Column(name = "atualizado_em", nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 }

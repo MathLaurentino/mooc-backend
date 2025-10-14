@@ -2,6 +2,7 @@ package ifpr.edu.br.mooc.service;
 
 import ifpr.edu.br.mooc.dto.knowledgeArea.KnowledgeAreaReqDto;
 import ifpr.edu.br.mooc.dto.knowledgeArea.KnowledgeAreaResDto;
+import ifpr.edu.br.mooc.dto.pageable.PageResponse;
 import ifpr.edu.br.mooc.entity.KnowledgeArea;
 import ifpr.edu.br.mooc.exceptions.knowledgeArea.DuplicatedKnowledgeAreaNameException;
 import ifpr.edu.br.mooc.mapper.KnowledgeAreaMapper;
@@ -31,14 +32,14 @@ public class KnowledgeAreaService {
         return mapper.toKnowledgeAreaResDto(createdKnowledgeArea);
     }
 
-    public Page<KnowledgeAreaResDto> getKnowledgeAreas(
+    public PageResponse<KnowledgeAreaResDto> getKnowledgeAreas(
             KnowledgeAreaSpecification spec,
             Pageable pageable
     ) {
         Page<KnowledgeArea> knowledgeAreasPage = repository.findAll(spec, pageable);
 
         // Converte cada entidade para DTO
-        return knowledgeAreasPage.map(mapper::toKnowledgeAreaResDto);
+        return new PageResponse<>(knowledgeAreasPage.map(mapper::toKnowledgeAreaResDto));
     }
 
 

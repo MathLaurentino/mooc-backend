@@ -32,6 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String userEmail;
+        final String userName;
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -40,17 +41,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         jwt = authHeader.substring(7);
         userEmail = jwtUtils.extractUsername(jwt);
+        userName = jwtUtils.extractUsername(jwt);
 
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             if (jwtUtils.isTokenValid(jwt)) {
-                // Extrair role do token
+                // Extrair informações do token
+                Long userId = jwtUtils.extractUserId(jwt);
                 UserRole userRole = jwtUtils.extractUserRole(jwt);
+
+                // Criar o principal com todas as informações
+                JwtUserPrincipal principal = new JwtUserPrincipal(userId, userEmail, userName, userRole);
+
+                System.out.println(principal);
 
                 // Criar authority com prefixo ROLE_
                 SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + userRole.name());
 
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userEmail,
+                        principal,  // ✅ Agora passa o objeto JwtUserPrincipal
                         null,
                         Collections.singletonList(authority)
                 );

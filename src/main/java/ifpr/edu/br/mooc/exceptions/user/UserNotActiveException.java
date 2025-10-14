@@ -5,10 +5,10 @@ import ifpr.edu.br.mooc.exceptions.base.ForbiddenException;
 public class UserNotActiveException extends ForbiddenException {
     
     public UserNotActiveException() {
-        super("User account is not active");
+        super("Conta do usuário não está ativa");
     }
     
     public UserNotActiveException(String email) {
-        super(String.format("User account for '%s' is not active", email));
+        super(String.format("Conta com email '%s' não está ativa", email));
     }
 }

@@ -32,7 +32,7 @@ public class KnowledgeArea {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @Column(name = "editado_em", nullable = false)
+    @Column(name = "atualizado_em", nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 }
