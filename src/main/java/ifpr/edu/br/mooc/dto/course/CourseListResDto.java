@@ -6,6 +6,10 @@ public record CourseListResDto(
         String nomeProfessor,
         String miniatura,
         Integer cargaHoraria,
-        String nomeCampus,
-        String nomeAreaConhecimento
-) {}
+        CampusDto campus,
+        AreaConhecimentoDto areaConhecimento,
+        Boolean isEnrolled
+) {
+    public record CampusDto(Long id, String nome) {}
+    public record AreaConhecimentoDto(Long id, String nome) {}
+}

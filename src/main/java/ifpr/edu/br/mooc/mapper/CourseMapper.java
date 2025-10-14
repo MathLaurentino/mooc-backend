@@ -7,6 +7,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 
+import java.util.Set;
+
 @Mapper(
         componentModel = MappingConstants.ComponentModel.SPRING,
         uses = LessonMapper.class
@@ -63,9 +65,23 @@ public interface CourseMapper {
     @Mapping(target = "nomeProfessor", source = "professorName")
     @Mapping(target = "miniatura", source = "thumbnail")
     @Mapping(target = "cargaHoraria", source = "workload")
-    @Mapping(target = "nomeCampus", source = "campus.name")
-    @Mapping(target = "nomeAreaConhecimento", source = "knowledgeArea.name")
+    @Mapping(target = "campus.id", source = "campus.id")
+    @Mapping(target = "campus.nome", source = "campus.name")
+    @Mapping(target = "areaConhecimento.id", source = "knowledgeArea.id")
+    @Mapping(target = "areaConhecimento.nome", source = "knowledgeArea.name")
+    @Mapping(target = "isEnrolled", ignore = true) // ✅ Ignora no mapeamento automático
     CourseListResDto toCourseListResDto(Course course);
+
+    @Mapping(target = "nome", source = "course.name")
+    @Mapping(target = "nomeProfessor", source = "course.professorName")
+    @Mapping(target = "miniatura", source = "course.thumbnail")
+    @Mapping(target = "cargaHoraria", source = "course.workload")
+    @Mapping(target = "campus.id", source = "course.campus.id")
+    @Mapping(target = "campus.nome", source = "course.campus.name")
+    @Mapping(target = "areaConhecimento.id", source = "course.knowledgeArea.id")
+    @Mapping(target = "areaConhecimento.nome", source = "course.knowledgeArea.name")
+    @Mapping(target = "isEnrolled", expression = "java(enrolledCourseIds.contains(course.getId()))")
+    CourseListResDto toCourseListResDto(Course course, Set<Long> enrolledCourseIds);
 
     @Mapping(target = "nome", source = "name")
     @Mapping(target = "descricao", source = "description")

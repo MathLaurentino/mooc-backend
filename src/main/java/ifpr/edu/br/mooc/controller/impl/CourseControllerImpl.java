@@ -82,7 +82,7 @@ public class CourseControllerImpl implements CourseController {
         var pageable = PageRequest.of(page, size, Sort.by(sortDirection, "id"));
         var spec = new CourseSpecification(name, visible, knowledgeAreaId, campusId);
 
-        var response = courseService.getKnowledgeAreas(spec, pageable);
+        var response = courseService.getCourses(spec, pageable);
         return ResponseEntity.ok(response);
     }
 
