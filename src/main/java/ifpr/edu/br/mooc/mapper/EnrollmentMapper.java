@@ -16,7 +16,7 @@ public interface EnrollmentMapper {
     @Mapping(target = "completed", ignore = true)
     @Mapping(target = "completedAt", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "userId", source = "usuarioId")
+    @Mapping(target = "userId", ignore = true)
     @Mapping(target = "courseId", source = "cursoId")
     Enrollment toEnrollment(EnrollmentRequestDTO dto);
 

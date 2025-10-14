@@ -5,11 +5,11 @@ import ifpr.edu.br.mooc.exceptions.base.ConflictException;
 public class DuplicateCpfException extends ConflictException {
     
     public DuplicateCpfException() {
-        super("CPF already registered in the system");
+        super("CPF já registrado no sistema");
     }
     
     public DuplicateCpfException(String cpf) {
-        super(String.format("CPF '%s' is already registered in the system", maskCpf(cpf)));
+        super(String.format("CPF '%s' já registrado no sistema", maskCpf(cpf)));
     }
     
     private static String maskCpf(String cpf) {

@@ -6,6 +6,8 @@ import ifpr.edu.br.mooc.entity.Course;
 import ifpr.edu.br.mooc.entity.Enrollment;
 import ifpr.edu.br.mooc.entity.User;
 import ifpr.edu.br.mooc.exceptions.base.NotFoundException;
+import ifpr.edu.br.mooc.exceptions.enrollment.EnrollmentAlreadyExistsException;
+import ifpr.edu.br.mooc.exceptions.user.UserNotActiveException;
 import ifpr.edu.br.mooc.mapper.EnrollmentMapper;
 import ifpr.edu.br.mooc.repository.CourseRepository;
 import ifpr.edu.br.mooc.repository.EnrollmentRepository;
@@ -22,22 +24,26 @@ public class EnrollmentService {
     private final CourseRepository courseRepository;
     private final EnrollmentMapper mapper;
 
-    public EnrollmentDTO createEnrollment(EnrollmentRequestDTO dto) {
+    public EnrollmentDTO createEnrollment(EnrollmentRequestDTO dto, Long userId) {
         Course course = courseRepository.findById(dto.cursoId()).orElseThrow(
                 () -> new NotFoundException("Curso não encontrado."));
 
         if (!course.getVisible())
             throw new NotFoundException("Curso não encontrado.");
 
-        User user = userRepository.findById(dto.usuarioId()).orElseThrow(
+        User user = userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException("Usuário não encontrado."));
 
         if (!user.getActive())
-            throw new NotFoundException("Usuário não encontrado.");
+            throw new UserNotActiveException();
+
+        if (enrollmentRepository.existsByUserIdAndCourseId(userId, dto.cursoId()))
+            throw new EnrollmentAlreadyExistsException();
 
         Enrollment enrollment = mapper.toEnrollment(dto);
-        enrollment.setCourse(course);
+        enrollment.setId(userId);
         enrollment.setUser(user);
+        enrollment.setCourse(course);
 
         Enrollment savedEnrollment = enrollmentRepository.save(enrollment);
         return mapper.toEnrollmentDTO(savedEnrollment);
