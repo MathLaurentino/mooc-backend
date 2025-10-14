@@ -41,7 +41,7 @@ public class EnrollmentService {
             throw new EnrollmentAlreadyExistsException();
 
         Enrollment enrollment = mapper.toEnrollment(dto);
-        enrollment.setId(userId);
+        enrollment.setUserId(userId);
         enrollment.setUser(user);
         enrollment.setCourse(course);
 
