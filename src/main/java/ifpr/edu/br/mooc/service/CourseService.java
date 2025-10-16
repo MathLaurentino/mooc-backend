@@ -19,8 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -90,12 +90,10 @@ public class CourseService {
             Pageable pageable
     ) {
         Page<Course> coursesPage = courseRepository.findAll(spec, pageable);
-        Set<Long> enrolledCourseIds = getEnrolledCourseIds();
-
-        System.out.println(enrolledCourseIds);
+        Map<Long, Long> enrollmentsByCourseId = getEnrollmentsByCourseId();
 
         List<CourseListResDto> content = coursesPage.getContent().stream()
-                .map(course -> mapper.toCourseListResDto(course, enrolledCourseIds))
+                .map(course -> mapper.toCourseListResDto(course, enrollmentsByCourseId))
                 .toList();
 
         return new PageResponse<>(
@@ -109,16 +107,18 @@ public class CourseService {
         );
     }
 
-    private Set<Long> getEnrolledCourseIds() {
+    private Map<Long, Long> getEnrollmentsByCourseId() {
         try {
             Long userId = currentUserService.getCurrentUserId();
             List<Enrollment> enrollments = enrollmentRepository.findByUserId(userId);
-            System.out.println(enrollments);
             return enrollments.stream()
-                    .map(Enrollment::getCourseId)
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toMap(
+                            Enrollment::getCourseId,
+                            Enrollment::getId,
+                            (existing, replacement) -> existing
+                    ));
         } catch (Exception e) {
-            return Set.of();
+            return Map.of();
         }
     }
 

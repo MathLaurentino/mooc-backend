@@ -8,7 +8,7 @@ public record CourseListResDto(
         Integer cargaHoraria,
         CampusDto campus,
         AreaConhecimentoDto areaConhecimento,
-        Boolean isEnrolled
+        Long enrollmentId
 ) {
     public record CampusDto(Long id, String nome) {}
     public record AreaConhecimentoDto(Long id, String nome) {}
