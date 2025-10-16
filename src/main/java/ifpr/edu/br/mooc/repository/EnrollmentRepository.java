@@ -7,8 +7,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Long>, JpaSpecificationExecutor<Enrollment> {
 
@@ -24,4 +27,10 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long>, J
 
     @EntityGraph(attributePaths = {"course", "course.campus", "course.knowledgeArea"})
     Page<Enrollment> findAll(Specification<Enrollment> spec, Pageable pageable);
+
+    @Query("SELECT e FROM Enrollment e WHERE e.userId = :userId AND e.courseId = :courseId")
+    Optional<Enrollment> findByUserIdAndCourseId(
+            @Param("userId") Long userId,
+            @Param("courseId") Long courseId
+    );
 }

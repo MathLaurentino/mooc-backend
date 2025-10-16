@@ -7,8 +7,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Mapper(
         componentModel = MappingConstants.ComponentModel.SPRING,
@@ -24,6 +24,7 @@ public interface CourseMapper {
     @Mapping(target = "thumbnail", ignore = true)
     @Mapping(target = "visible", ignore = true)
     @Mapping(target = "lessons", ignore = true)
+    @Mapping(target = "enrollments", ignore = true)
     @Mapping(target = "name", source = "nome")
     @Mapping(target = "description", source = "descricao")
     @Mapping(target = "knowledgeAreaId", source = "areaConhecimentoId")
@@ -39,6 +40,7 @@ public interface CourseMapper {
     @Mapping(target = "campus", ignore = true)
     @Mapping(target = "thumbnail", ignore = true)
     @Mapping(target = "lessons", ignore = true)
+    @Mapping(target = "enrollments", ignore = true)
     @Mapping(target = "name", source = "nome")
     @Mapping(target = "description", source = "descricao")
     @Mapping(target = "knowledgeAreaId", source = "areaConhecimentoId")
@@ -73,18 +75,23 @@ public interface CourseMapper {
     @Mapping(target = "enrollmentId", expression = "java(enrollmentsByCourseId.get(course.getId()))")
     CourseListResDto toCourseListResDto(Course course, Map<Long, Long> enrollmentsByCourseId);
 
-    @Mapping(target = "nome", source = "name")
-    @Mapping(target = "descricao", source = "description")
-    @Mapping(target = "nomeProfessor", source = "professorName")
-    @Mapping(target = "miniatura", source = "thumbnail")
-    @Mapping(target = "cargaHoraria", source = "workload")
-    @Mapping(target = "visivel", source = "visible")
-    @Mapping(target = "criadoEm", source = "createdAt")
-    @Mapping(target = "editadoEm", source = "updatedAt")
-    @Mapping(target = "campus.id", source = "campus.id")
-    @Mapping(target = "campus.nome", source = "campus.name")
-    @Mapping(target = "areaConhecimento.id", source = "knowledgeArea.id")
-    @Mapping(target = "areaConhecimento.nome", source = "knowledgeArea.name")
+    @Mapping(target = "nome", source = "course.name")
+    @Mapping(target = "descricao", source = "course.description")
+    @Mapping(target = "nomeProfessor", source = "course.professorName")
+    @Mapping(target = "miniatura", source = "course.thumbnail")
+    @Mapping(target = "cargaHoraria", source = "course.workload")
+    @Mapping(target = "visivel", source = "course.visible")
+    @Mapping(target = "criadoEm", source = "course.createdAt")
+    @Mapping(target = "editadoEm", source = "course.updatedAt")
+    @Mapping(target = "campus.id", source = "course.campus.id")
+    @Mapping(target = "campus.nome", source = "course.campus.name")
+    @Mapping(target = "areaConhecimento.id", source = "course.knowledgeArea.id")
+    @Mapping(target = "areaConhecimento.nome", source = "course.knowledgeArea.name")
     @Mapping(target = "aulas", source = "lessons")
-    CourseWithLessonsResDto toCourseWithLessonsResDto(Course course);
+    @Mapping(target = "inscricaoInfo", source = "enrollmentInfo")
+    CourseWithLessonsResDto toCourseWithLessonsResDto(
+            Course course,
+            List<CourseWithLessonsResDto.LessonListResDto> lessons, // MUDOU: agora usa o DTO interno
+            CourseWithLessonsResDto.InscricaoInfoDto enrollmentInfo
+    );
 }

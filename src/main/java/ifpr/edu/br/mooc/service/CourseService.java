@@ -1,15 +1,16 @@
 package ifpr.edu.br.mooc.service;
 
 import ifpr.edu.br.mooc.dto.course.*;
+import ifpr.edu.br.mooc.dto.lesson.LessonListResDto;
 import ifpr.edu.br.mooc.dto.pageable.PageResponse;
 import ifpr.edu.br.mooc.entity.Course;
 import ifpr.edu.br.mooc.entity.Enrollment;
+import ifpr.edu.br.mooc.entity.Lesson;
+import ifpr.edu.br.mooc.entity.LessonProgress;
 import ifpr.edu.br.mooc.exceptions.base.NotFoundException;
 import ifpr.edu.br.mooc.mapper.CourseMapper;
-import ifpr.edu.br.mooc.repository.CampusRepository;
-import ifpr.edu.br.mooc.repository.CourseRepository;
-import ifpr.edu.br.mooc.repository.EnrollmentRepository;
-import ifpr.edu.br.mooc.repository.KnowledgeAreaRepository;
+import ifpr.edu.br.mooc.mapper.LessonMapper;
+import ifpr.edu.br.mooc.repository.*;
 import ifpr.edu.br.mooc.repository.specification.CourseSpecification;
 import ifpr.edu.br.mooc.security.CurrentUserService;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,7 +31,9 @@ public class CourseService {
     private final KnowledgeAreaRepository knowledgeAreaRepository;
     private final CampusRepository campusRepository;
     private final EnrollmentRepository enrollmentRepository;
+    private final LessonProgressRepository lessonProgressRepository;
     private final CourseMapper mapper;
+    private final LessonMapper lessonMapper;
 
     public CourseDetailResDto createCourse(CourseCreateReqDto dto) {
         if (!knowledgeAreaRepository.existsByIdAndVisibleTrue(dto.areaConhecimentoId()))
@@ -77,11 +78,39 @@ public class CourseService {
         return mapper.toCourseDetailResDto(savedCourse);
     }
 
+    @Transactional(readOnly = true)
     public CourseWithLessonsResDto getByIdWithLessons(Long id) {
         Course course = courseRepository.findByIdWithLessons(id).orElseThrow(
                 () -> new NotFoundException("Curso não encontrado."));
 
-        return mapper.toCourseWithLessonsResDto(course);
+        // Buscar informações de inscrição (se o usuário estiver logado)
+        CourseWithLessonsResDto.InscricaoInfoDto enrollmentInfo = getEnrollmentInfo(id);
+
+        // Buscar progresso das aulas (se houver inscrição)
+        Map<Long, Boolean> completedLessonsMap = new HashMap<>();
+        if (enrollmentInfo != null && enrollmentInfo.inscricaoId() != null) {
+            List<LessonProgress> progressList = lessonProgressRepository
+                    .findByEnrollmentId(enrollmentInfo.inscricaoId());
+            completedLessonsMap = progressList.stream()
+                    .collect(Collectors.toMap(
+                            LessonProgress::getLessonId,
+                            LessonProgress::getCompleted,
+                            (existing, replacement) -> replacement
+                    ));
+        }
+
+        Map<Long, Boolean> finalCompletedMap = completedLessonsMap;
+        List<CourseWithLessonsResDto.LessonListResDto> lessonDtos = course.getLessons().stream()
+                .sorted(Comparator.comparing(Lesson::getLessonOrder))
+                .map(lesson -> new CourseWithLessonsResDto.LessonListResDto(
+                        lesson.getId(),
+                        lesson.getTitle(),
+                        lesson.getLessonOrder(),
+                        finalCompletedMap.getOrDefault(lesson.getId(), false)
+                ))
+                .toList();
+
+        return mapper.toCourseWithLessonsResDto(course, lessonDtos, enrollmentInfo);
     }
 
     @Transactional(readOnly = true)
@@ -122,4 +151,33 @@ public class CourseService {
         }
     }
 
+    private CourseWithLessonsResDto.InscricaoInfoDto getEnrollmentInfo(Long courseId) {
+        try {
+            Long userId = currentUserService.getCurrentUserId();
+            Optional<Enrollment> enrollmentOpt = enrollmentRepository
+                    .findByUserIdAndCourseId(userId, courseId);
+
+            if (enrollmentOpt.isEmpty()) {
+                return null;
+            }
+
+            Enrollment enrollment = enrollmentOpt.get();
+            Integer totalLessons = courseRepository.countLessonsByCourseId(courseId);
+            Integer completedLessons = lessonProgressRepository
+                    .countCompletedByEnrollmentId(enrollment.getId());
+
+            return new CourseWithLessonsResDto.InscricaoInfoDto(
+                    enrollment.getId(),
+                    true,
+                    enrollment.getCompleted(),
+                    enrollment.getCreatedAt(),
+                    enrollment.getCompletedAt(),
+                    totalLessons,
+                    completedLessons
+            );
+        } catch (Exception e) {
+            // Usuário não logado ou erro ao buscar
+            return null;
+        }
+    }
 }

@@ -13,4 +13,7 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
     @Query("SELECT c FROM Course c LEFT JOIN FETCH c.lessons WHERE c.id = :id")
     Optional<Course> findByIdWithLessons(@Param("id") Long id);
 
+    @Query("SELECT COUNT(l) FROM Lesson l WHERE l.courseId = :courseId")
+    Integer countLessonsByCourseId(@Param("courseId") Long courseId);
+
 }
