@@ -8,6 +8,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "usuario")
@@ -17,7 +19,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
-@ToString(exclude = "password")
+@ToString(exclude = {"password", "enrollments"})
 public class User {
 
     @Id
@@ -46,6 +48,10 @@ public class User {
     @Column(name = "tipo_usuario", nullable = false)
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Enrollment> enrollments = new ArrayList<>();
 
     @Column(name = "criado_em", nullable = false, updatable = false)
     @CreationTimestamp

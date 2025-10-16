@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
-@ToString(exclude = {"campus", "knowledgeArea", "lessons"})
+@ToString(exclude = {"campus", "knowledgeArea", "lessons", "enrollments"})
 public class Course {
 
     @Id
@@ -47,6 +47,10 @@ public class Course {
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
     @Builder.Default
     private List<Lesson> lessons = new ArrayList<>();
+
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Enrollment> enrollments = new ArrayList<>();
 
     @Column(name = "nome_professor", nullable = false)
     private String professorName;
