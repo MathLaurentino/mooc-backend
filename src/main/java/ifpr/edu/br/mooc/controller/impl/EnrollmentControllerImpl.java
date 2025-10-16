@@ -31,7 +31,6 @@ public class EnrollmentControllerImpl implements EnrollmentController {
             @RequestBody @Valid EnrollmentRequestDTO dto
     ) {
         Long userId = currentUserService.getCurrentUserId();
-        System.out.println(userId);
         var response = enrollmentService.createEnrollment(dto, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

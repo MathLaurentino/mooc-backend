@@ -57,6 +57,8 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/campus").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/knowledge-area").permitAll()
                         .requestMatchers(HttpMethod.GET, "/courses/{id}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/courses").permitAll()
                         .requestMatchers(HttpMethod.GET, "/courses/{courseId}/lessons").permitAll()
