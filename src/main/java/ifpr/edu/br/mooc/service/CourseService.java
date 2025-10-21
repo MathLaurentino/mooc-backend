@@ -55,7 +55,7 @@ public class CourseService {
 
         var savedCourse = courseRepository.save(course);
 
-        return mapper.toCourseDetailResDto(savedCourse);
+        return mapper.toCourseDetailResDto(savedCourse, null);
     }
 
     @Transactional
@@ -93,9 +93,9 @@ public class CourseService {
         mapper.updateCourse(course, dto);
 
         var savedCourse = courseRepository.save(course);
-        savedCourse.setThumbnail(generateThumbnailUrl(id));
+        String thumbnailUrl = savedCourse.getThumbnail() != null ? generateThumbnailUrl(id) : null;
 
-        return mapper.toCourseDetailResDto(savedCourse);
+        return mapper.toCourseDetailResDto(savedCourse, thumbnailUrl);
     }
 
     @Transactional
@@ -106,16 +106,15 @@ public class CourseService {
         course.setVisible(active);
 
         var savedCourse = courseRepository.save(course);
-        savedCourse.setThumbnail(generateThumbnailUrl(id));
+        String thumbnailUrl = savedCourse.getThumbnail() != null ? generateThumbnailUrl(id) : null;
 
-        return mapper.toCourseDetailResDto(savedCourse);
+        return mapper.toCourseDetailResDto(savedCourse, thumbnailUrl);
     }
 
     @Transactional(readOnly = true)
     public CourseWithLessonsResDto getByIdWithLessons(Long id) {
         Course course = courseRepository.findByIdWithLessons(id).orElseThrow(
                 () -> new NotFoundException("Curso não encontrado."));
-        course.setThumbnail(generateThumbnailUrl(id));
 
         // Buscar informações de inscrição (se o usuário estiver logado)
         CourseWithLessonsResDto.InscricaoInfoDto enrollmentInfo = getEnrollmentInfo(id);
@@ -144,7 +143,10 @@ public class CourseService {
                 ))
                 .toList();
 
-        return mapper.toCourseWithLessonsResDto(course, lessonDtos, enrollmentInfo);
+        // Gera URL da thumbnail se existir
+        String thumbnailUrl = course.getThumbnail() != null ? generateThumbnailUrl(id) : null;
+
+        return mapper.toCourseWithLessonsResDto(course, lessonDtos, enrollmentInfo, thumbnailUrl);
     }
 
     @Transactional(readOnly = true)
@@ -156,7 +158,10 @@ public class CourseService {
         Map<Long, Long> enrollmentsByCourseId = getEnrollmentsByCourseId();
 
         List<CourseListResDto> content = coursesPage.getContent().stream()
-                .map(course -> mapper.toCourseListResDto(course, enrollmentsByCourseId))
+                .map(course -> {
+                    String thumbnailUrl = course.getThumbnail() != null ? generateThumbnailUrl(course.getId()) : null;
+                    return mapper.toCourseListResDto(course, enrollmentsByCourseId, thumbnailUrl);
+                })
                 .toList();
 
         return new PageResponse<>(

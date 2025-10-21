@@ -50,35 +50,35 @@ public interface CourseMapper {
     @Mapping(target = "visible", source = "visivel")
     void updateCourse(@MappingTarget Course course, CourseUpdateReqDto dto);
 
-    @Mapping(target = "nome", source = "name")
-    @Mapping(target = "descricao", source = "description")
-    @Mapping(target = "nomeProfessor", source = "professorName")
-    @Mapping(target = "miniatura", source = "thumbnail")
-    @Mapping(target = "cargaHoraria", source = "workload")
-    @Mapping(target = "visivel", source = "visible")
-    @Mapping(target = "campus.id", source = "campus.id")
-    @Mapping(target = "campus.nome", source = "campus.name")
-    @Mapping(target = "areaConhecimento.id", source = "knowledgeArea.id")
-    @Mapping(target = "areaConhecimento.nome", source = "knowledgeArea.name")
-    @Mapping(target = "criadoEm", source = "createdAt")
-    @Mapping(target = "editadoEm", source = "updatedAt")
-    CourseDetailResDto toCourseDetailResDto(Course course);
+    @Mapping(target = "nome", source = "course.name")
+    @Mapping(target = "descricao", source = "course.description")
+    @Mapping(target = "nomeProfessor", source = "course.professorName")
+    @Mapping(target = "miniatura", source = "thumbnailUrl")
+    @Mapping(target = "cargaHoraria", source = "course.workload")
+    @Mapping(target = "visivel", source = "course.visible")
+    @Mapping(target = "campus.id", source = "course.campus.id")
+    @Mapping(target = "campus.nome", source = "course.campus.name")
+    @Mapping(target = "areaConhecimento.id", source = "course.knowledgeArea.id")
+    @Mapping(target = "areaConhecimento.nome", source = "course.knowledgeArea.name")
+    @Mapping(target = "criadoEm", source = "course.createdAt")
+    @Mapping(target = "editadoEm", source = "course.updatedAt")
+    CourseDetailResDto toCourseDetailResDto(Course course, String thumbnailUrl);
 
     @Mapping(target = "nome", source = "course.name")
     @Mapping(target = "nomeProfessor", source = "course.professorName")
-    @Mapping(target = "miniatura", source = "course.thumbnail")
+    @Mapping(target = "miniatura", source = "thumbnailUrl")
     @Mapping(target = "cargaHoraria", source = "course.workload")
     @Mapping(target = "campus.id", source = "course.campus.id")
     @Mapping(target = "campus.nome", source = "course.campus.name")
     @Mapping(target = "areaConhecimento.id", source = "course.knowledgeArea.id")
     @Mapping(target = "areaConhecimento.nome", source = "course.knowledgeArea.name")
     @Mapping(target = "enrollmentId", expression = "java(enrollmentsByCourseId.get(course.getId()))")
-    CourseListResDto toCourseListResDto(Course course, Map<Long, Long> enrollmentsByCourseId);
+    CourseListResDto toCourseListResDto(Course course, Map<Long, Long> enrollmentsByCourseId, String thumbnailUrl);
 
     @Mapping(target = "nome", source = "course.name")
     @Mapping(target = "descricao", source = "course.description")
     @Mapping(target = "nomeProfessor", source = "course.professorName")
-    @Mapping(target = "miniatura", source = "course.thumbnail")
+    @Mapping(target = "miniatura", source = "thumbnailUrl")
     @Mapping(target = "cargaHoraria", source = "course.workload")
     @Mapping(target = "visivel", source = "course.visible")
     @Mapping(target = "criadoEm", source = "course.createdAt")
@@ -91,7 +91,8 @@ public interface CourseMapper {
     @Mapping(target = "inscricaoInfo", source = "enrollmentInfo")
     CourseWithLessonsResDto toCourseWithLessonsResDto(
             Course course,
-            List<CourseWithLessonsResDto.LessonListResDto> lessons, // MUDOU: agora usa o DTO interno
-            CourseWithLessonsResDto.InscricaoInfoDto enrollmentInfo
+            List<CourseWithLessonsResDto.LessonListResDto> lessons,
+            CourseWithLessonsResDto.InscricaoInfoDto enrollmentInfo,
+            String thumbnailUrl
     );
 }
