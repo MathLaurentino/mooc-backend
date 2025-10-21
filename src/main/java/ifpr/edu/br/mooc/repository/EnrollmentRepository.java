@@ -33,4 +33,20 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long>, J
             @Param("userId") Long userId,
             @Param("courseId") Long courseId
     );
+
+    @Query("""
+        SELECT CASE WHEN COUNT(l) = COUNT(lp) AND COUNT(l) > 0 
+                    THEN true 
+                    ELSE false 
+               END
+        FROM Lesson l
+        LEFT JOIN LessonProgress lp 
+            ON lp.lessonId = l.id 
+            AND lp.enrollmentId = :enrollmentId 
+            AND lp.completed = true
+        WHERE l.courseId = (
+            SELECT e.courseId FROM Enrollment e WHERE e.id = :enrollmentId
+        )
+        """)
+    Boolean isEnrollmentCompleted(@Param("enrollmentId") Long enrollmentId);
 }

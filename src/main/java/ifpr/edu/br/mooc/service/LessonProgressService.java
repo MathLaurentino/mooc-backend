@@ -14,6 +14,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Service
@@ -52,8 +53,21 @@ public class LessonProgressService {
                 });
 
         lessonProgress.setCompleted(dto.concluido());
-
         LessonProgress saved = lessonProgressRepository.save(lessonProgress);
+
+        // Verifica se todas as aulas foram concluídas e atualiza o enrollment
+        if (dto.concluido() && !enrollment.getCompleted()) {
+            boolean allCompleted = enrollmentRepository.isEnrollmentCompleted(
+                    enrollmentId
+            );
+
+            if (allCompleted) {
+                enrollment.setCompleted(true);
+                enrollment.setCompletedAt(LocalDateTime.now());
+                enrollmentRepository.save(enrollment);
+            }
+        }
+
         return LessonProgressResponseDTO.fromEntity(saved);
     }
 }
