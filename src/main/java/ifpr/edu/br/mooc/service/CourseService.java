@@ -1,7 +1,6 @@
 package ifpr.edu.br.mooc.service;
 
 import ifpr.edu.br.mooc.dto.course.*;
-import ifpr.edu.br.mooc.dto.lesson.LessonListResDto;
 import ifpr.edu.br.mooc.dto.pageable.PageResponse;
 import ifpr.edu.br.mooc.entity.Course;
 import ifpr.edu.br.mooc.entity.Enrollment;
@@ -14,10 +13,12 @@ import ifpr.edu.br.mooc.repository.*;
 import ifpr.edu.br.mooc.repository.specification.CourseSpecification;
 import ifpr.edu.br.mooc.security.CurrentUserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,9 +33,14 @@ public class CourseService {
     private final CampusRepository campusRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final LessonProgressRepository lessonProgressRepository;
+    private final LocalFileStorageService fileStorageService;
     private final CourseMapper mapper;
     private final LessonMapper lessonMapper;
 
+    @Value("${server.base-url:http://localhost:8080}")
+    private String baseUrl;
+
+    @Transactional
     public CourseDetailResDto createCourse(CourseCreateReqDto dto) {
         if (!knowledgeAreaRepository.existsByIdAndVisibleTrue(dto.areaConhecimentoId()))
             throw new NotFoundException("Área de conhecimento não encontrada.");
@@ -44,12 +50,35 @@ public class CourseService {
 
         Course course = mapper.toCourse(dto);
         course.setVisible(false);
+        course.setThumbnail(null);
 
         var savedCourse = courseRepository.save(course);
 
         return mapper.toCourseDetailResDto(savedCourse);
     }
 
+    @Transactional
+    public CourseThumbnailResDto uploadThumbnail(Long courseId, MultipartFile thumbnail) {
+        Course course = courseRepository.findById(courseId).orElseThrow(
+                () -> new NotFoundException("Curso não encontrado."));
+
+        // Deleta thumbnail antiga se existir
+        if (course.getThumbnail() != null) {
+            fileStorageService.deleteCourseThumbnail(course.getThumbnail());
+        }
+
+        // Salva nova thumbnail
+        String thumbnailPath = fileStorageService.saveCourseThumbnail(thumbnail, courseId);
+        course.setThumbnail(thumbnailPath);
+        courseRepository.save(course);
+
+        // Gera URL para acesso
+        String thumbnailUrl = generateThumbnailUrl(courseId);
+
+        return new CourseThumbnailResDto(courseId, thumbnailUrl);
+    }
+
+    @Transactional
     public CourseDetailResDto updateCourse(Long id, CourseUpdateReqDto dto) {
         Course course = courseRepository.findById(id).orElseThrow(
                 () -> new NotFoundException("Curso não encontrado."));
@@ -63,10 +92,12 @@ public class CourseService {
         mapper.updateCourse(course, dto);
 
         var savedCourse = courseRepository.save(course);
+        savedCourse.setThumbnail(generateThumbnailUrl(id));
 
         return mapper.toCourseDetailResDto(savedCourse);
     }
 
+    @Transactional
     public CourseDetailResDto updateCourseActiveStatus(Long id, boolean active) {
         Course course = courseRepository.findById(id).orElseThrow(
                 () -> new NotFoundException("Curso não encontrado."));
@@ -74,6 +105,7 @@ public class CourseService {
         course.setVisible(active);
 
         var savedCourse = courseRepository.save(course);
+        savedCourse.setThumbnail(generateThumbnailUrl(id));
 
         return mapper.toCourseDetailResDto(savedCourse);
     }
@@ -82,6 +114,7 @@ public class CourseService {
     public CourseWithLessonsResDto getByIdWithLessons(Long id) {
         Course course = courseRepository.findByIdWithLessons(id).orElseThrow(
                 () -> new NotFoundException("Curso não encontrado."));
+        course.setThumbnail(generateThumbnailUrl(id));
 
         // Buscar informações de inscrição (se o usuário estiver logado)
         CourseWithLessonsResDto.InscricaoInfoDto enrollmentInfo = getEnrollmentInfo(id);
@@ -179,5 +212,9 @@ public class CourseService {
             // Usuário não logado ou erro ao buscar
             return null;
         }
+    }
+
+    private String generateThumbnailUrl(Long courseId) {
+        return String.format("%s/api/courses/%d/thumbnail", baseUrl, courseId);
     }
 }

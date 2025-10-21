@@ -4,12 +4,20 @@ import ifpr.edu.br.mooc.dto.course.*;
 import ifpr.edu.br.mooc.dto.lesson.*;
 import ifpr.edu.br.mooc.dto.pageable.PageResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface CourseController {
 
-    ResponseEntity<CourseDetailResDto> createCourse(CourseCreateReqDto dto);
+    ResponseEntity<CourseDetailResDto> createCourse(
+            CourseCreateReqDto dto
+    );
+
+    ResponseEntity<CourseThumbnailResDto> uploadThumbnail(
+            Long id,
+            MultipartFile thumbnail
+    );
 
     ResponseEntity<CourseDetailResDto> updateById(Long id, CourseUpdateReqDto dto);
 
