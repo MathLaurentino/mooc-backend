@@ -9,6 +9,10 @@ import ifpr.edu.br.mooc.service.CourseService;
 import ifpr.edu.br.mooc.service.LessonService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -69,6 +73,28 @@ public class CourseControllerImpl implements CourseController {
     ) {
         var response = courseService.uploadThumbnail(id, thumbnail);
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Override
+    @GetMapping("/{id}/thumbnail")
+    public ResponseEntity<Resource> getThumbnail(@PathVariable Long id) {
+        Resource resource = courseService.getThumbnail(id);
+
+        // Detecta o tipo de conteúdo baseado na extensão
+        String contentType = "application/octet-stream";
+        try {
+            contentType = Files.probeContentType(Paths.get(resource.getURI()));
+            if (contentType == null) {
+                contentType = "application/octet-stream";
+            }
+        } catch (Exception e) {
+            // Usa o padrão se não conseguir detectar
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 
     @Override

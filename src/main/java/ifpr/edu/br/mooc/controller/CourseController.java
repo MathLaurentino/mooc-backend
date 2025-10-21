@@ -3,6 +3,7 @@ package ifpr.edu.br.mooc.controller;
 import ifpr.edu.br.mooc.dto.course.*;
 import ifpr.edu.br.mooc.dto.lesson.*;
 import ifpr.edu.br.mooc.dto.pageable.PageResponse;
+import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,11 +13,6 @@ public interface CourseController {
 
     ResponseEntity<CourseDetailResDto> createCourse(
             CourseCreateReqDto dto
-    );
-
-    ResponseEntity<CourseThumbnailResDto> uploadThumbnail(
-            Long id,
-            MultipartFile thumbnail
     );
 
     ResponseEntity<CourseDetailResDto> updateById(Long id, CourseUpdateReqDto dto);
@@ -33,6 +29,15 @@ public interface CourseController {
             Integer page,
             Integer size,
             String direction
+    );
+
+    ResponseEntity<CourseThumbnailResDto> uploadThumbnail(
+            Long id,
+            MultipartFile thumbnail
+    );
+
+    ResponseEntity<Resource> getThumbnail(
+            Long id
     );
 
     // ========== LESSON ENDPOINTS ==========

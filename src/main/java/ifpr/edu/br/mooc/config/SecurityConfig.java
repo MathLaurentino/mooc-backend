@@ -60,6 +60,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/campus").permitAll()
                         .requestMatchers(HttpMethod.GET, "/knowledge-area").permitAll()
                         .requestMatchers(HttpMethod.GET, "/courses/{id}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/courses/{id}/thumbnail").permitAll()
                         .requestMatchers(HttpMethod.GET, "/courses").permitAll()
                         .requestMatchers(HttpMethod.GET, "/courses/{courseId}/lessons").permitAll()
                         .anyRequest().authenticated()

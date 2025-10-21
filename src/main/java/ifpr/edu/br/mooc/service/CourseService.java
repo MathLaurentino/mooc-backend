@@ -14,6 +14,7 @@ import ifpr.edu.br.mooc.repository.specification.CourseSpecification;
 import ifpr.edu.br.mooc.security.CurrentUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -169,6 +170,17 @@ public class CourseService {
         );
     }
 
+    public Resource getThumbnail(Long courseId) {
+        Course course = courseRepository.findById(courseId).orElseThrow(
+                () -> new NotFoundException("Curso não encontrado."));
+
+        if (course.getThumbnail() == null || course.getThumbnail().isBlank()) {
+            throw new NotFoundException("Curso não possui thumbnail.");
+        }
+
+        return fileStorageService.loadCourseThumbnail(course.getThumbnail());
+    }
+
     private Map<Long, Long> getEnrollmentsByCourseId() {
         try {
             Long userId = currentUserService.getCurrentUserId();
@@ -215,6 +227,6 @@ public class CourseService {
     }
 
     private String generateThumbnailUrl(Long courseId) {
-        return String.format("%s/api/courses/%d/thumbnail", baseUrl, courseId);
+        return String.format("%s/mooc/courses/%d/thumbnail", baseUrl, courseId);
     }
 }

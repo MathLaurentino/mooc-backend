@@ -1,6 +1,7 @@
 package ifpr.edu.br.mooc.service;
 
 import ifpr.edu.br.mooc.exceptions.base.BadRequestException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import java.net.MalformedURLException;
 
 @Slf4j
 @Service
@@ -96,6 +99,27 @@ public class LocalFileStorageService {
         String contentType = file.getContentType();
         if (contentType == null || !contentType.startsWith("image/")) {
             throw new BadRequestException("O arquivo deve ser uma imagem.");
+        }
+    }
+
+    /**
+     * Carrega a thumbnail do curso do sistema de arquivos
+     * @param relativePath caminho relativo do arquivo
+     * @return Resource com o arquivo
+     */
+    public Resource loadCourseThumbnail(String relativePath) {
+        try {
+            Path fullPath = Paths.get(basePath, relativePath);
+            Resource resource = new UrlResource(fullPath.toUri());
+
+            if (resource.exists() && resource.isReadable()) {
+                return resource;
+            } else {
+                throw new EntityNotFoundException("Imagem não encontrada.");
+            }
+        } catch (MalformedURLException e) {
+            log.error("Erro ao carregar thumbnail: {}", e.getMessage());
+            throw new EntityNotFoundException("Imagem não encontrada.");
         }
     }
 
