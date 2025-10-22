@@ -1,0 +1,1113 @@
+type: collection.insomnia.rest/5.0
+name: MOOC
+meta:
+  id: wrk_01206bc881eb430f8cab658765b0bf56
+  created: 1757808934917
+  modified: 1757808934917
+  description: ""
+collection:
+  - name: User
+    meta:
+      id: fld_118125d5c8e54675bf79f732e7ac6c23
+      created: 1757873464535
+      modified: 1761097225610
+      sortKey: -1761096118049
+      description: ""
+    children:
+      - url: "{{ _.baseURl }}/users/register"
+        name: Criar Usuario
+        meta:
+          id: req_c089cabde813459596870b550e69472c
+          created: 1757808939729
+          modified: 1761097102110
+          isPrivate: false
+          description: ""
+          sortKey: -1757873468117
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"fullName": "Matheus Laurentino",
+            	"cpf": "07894971405",
+            	"birthDate": "2003-11-29",
+            	"email": "matheus@gmail.com",
+            	"password": "Senha123"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/10.3.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl }}/auth/login"
+        name: Login
+        meta:
+          id: req_02f70b4f8d33423ba4884c5cefdea672
+          created: 1757873476510
+          modified: 1761096092168
+          isPrivate: false
+          description: ""
+          sortKey: -1759091090555
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"email": "admin@mooc.ifpr.edu.br",
+            	"password": "senha"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.0
+        scripts:
+          afterResponse: >-
+            // Script para a aba Tests do request de login
+
+            const response = insomnia.response;
+
+
+            try {
+              const responseBody = JSON.parse(response.getBody())
+              
+              // Verifica se o login foi bem-sucedido (status 200)
+              if (response.getStatusCode() === 200) {
+                
+                let jwtToken = null;
+                
+                // Tenta encontrar o token nas estruturas mais comuns
+                if (insomnia.response.text().access_token) {
+                  jwtToken = insomnia.response.text().access_token;
+                }
+                else if (insomnia.response.text().token) {
+                  jwtToken = insomnia.response.text().token;
+                }
+                else if (insomnia.response.text().data && insomnia.response.text().data.token) {
+                  jwtToken = insomnia.response.text().data.token;
+                }
+                else if (insomnia.response.text().data && insomnia.response.text().data.access_token) {
+                  jwtToken = insomnia.response.text().data.access_token;
+                }
+                
+                if (jwtToken) {
+                  // Salva no ambiente global
+                  insomnia.environment.set('jwt_token', jwtToken);
+                  insomnia.environment.set('authorization_header', `Bearer ${jwtToken}`);
+                  
+                  console.log('✅ JWT Token capturado e salvo!');
+                  console.log('Token:', jwtToken.substring(0, 30) + '...');
+                  
+                } else {
+                  console.log('❌ JWT Token não encontrado no response');
+                  console.log('Response completo:', JSON.stringify(insomnia.response.text(), null, 2));
+                }
+                
+              } else {
+                console.log('❌ Login falhou, status:', response.getStatusCode());
+              }
+
+              
+            } catch (error) {
+              console.log('❌ Erro ao processar response:', error.message);
+            }
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Course
+    meta:
+      id: fld_3f658cb719fd4395b8840a4922fe9d91
+      created: 1759088848433
+      modified: 1761097220421
+      sortKey: -1761096117949
+      description: ""
+    children:
+      - url: "{{ _.baseURl }}/courses"
+        name: Criar Novo Curso (ADM)
+        meta:
+          id: req_b1879412f71c4fe5a4aeeed04e1ee27f
+          created: 1759088843514
+          modified: 1761096821390
+          isPrivate: false
+          description: ""
+          sortKey: -1759088853899
+        method: POST
+        body:
+          mimeType: application/json
+          text: >-
+            {
+              "name": "Desenvolvimento Web com Spring Boot",
+              "description": "Curso completo de desenvolvimento web utilizando Spring Boot, cobrindo desde conceitos básicos até tópicos avançados como segurança, testes e deploy. Os alunos aprenderão a criar APIs RESTful, trabalhar com banco de dados, implementar autenticação e autorização, além de boas práticas de desenvolvimento.",
+              "knowledgeAreaId": 1,
+              "campusId": 2,
+              "professorName": "Dr. João Silva Santos",
+              "workload": 80,
+              "visible": true
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl }}/courses/1"
+        name: Atualizar Dados Curso (ADM)
+        meta:
+          id: req_08b6efb7b9da4a77b051cd69e938a8a0
+          created: 1759457065136
+          modified: 1761096911009
+          isPrivate: false
+          description: ""
+          sortKey: -1759088853883.375
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "name": "Desenvolvimento Web com Spring Boot",
+              "description": "Atualização 123",
+              "knowledgeAreaId": 1,
+              "campusId": 2,
+              "professorName": "Dr. João Silva Santos",
+              "workload": 80,
+              "visible": false
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl }}/courses/1"
+        name: Buscar Curso por id (TODOS)
+        meta:
+          id: req_b06e9cc155444a15a2052c722274f6aa
+          created: 1759457085165
+          modified: 1761096877629
+          isPrivate: false
+          description: ""
+          sortKey: -1759088853849
+        method: GET
+        body:
+          mimeType: application/json
+          text: ""
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl }}/courses"
+        name: Buscar Cursos com Filtros (TODOS)
+        meta:
+          id: req_e0e0bc64ed1c46ab982763376a05af37
+          created: 1759457258314
+          modified: 1761096866178
+          isPrivate: false
+          description: ""
+          sortKey: -1759088853861.5
+        method: GET
+        parameters:
+          - id: pair_53af6b87b01e460a96ec03213d240058
+            name: nome
+            value: ""
+            description: ""
+            disabled: false
+          - id: pair_c9be6e9538184cf78ededff2736d0a88
+            name: visivel
+            value: ""
+            description: ""
+            disabled: false
+          - id: pair_21f020e974f7405b900b03c77b93a6c2
+            name: areaConhecimentoId
+            value: ""
+            description: ""
+            disabled: false
+          - id: pair_cbe57a021bca421cad4dad6ebbbb5bde
+            name: campusId
+            value: ""
+            description: ""
+            disabled: false
+          - id: pair_c6a762daa122418db394da4f084c5bcf
+            name: page
+            value: ""
+            description: ""
+            disabled: false
+          - id: pair_1d09fc72efb14767a5f3969e44c3d45d
+            name: size
+            value: ""
+            description: ""
+            disabled: false
+          - id: pair_240f0186605944dc9dc1209b79c791f0
+            name: direction
+            value: ""
+            description: ""
+            disabled: false
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl }}/courses/1"
+        name: Mudar Visibilidade Curso (ADM)
+        meta:
+          id: req_cfa92ff7afb54518935f61a250675e19
+          created: 1759457359435
+          modified: 1761096908929
+          isPrivate: false
+          description: ""
+          sortKey: -1759088853880.25
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"visible": true
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl }}/courses/1/thumbnail"
+        name: Adicionar / Atualizar Thumb do curso (ADM
+        meta:
+          id: req_b9fd98f933e944788a5088ee8c53496b
+          created: 1761008254818
+          modified: 1761096825375
+          isPrivate: false
+          description: ""
+          sortKey: -1759088853886.5
+        method: POST
+        body:
+          mimeType: multipart/form-data
+          params:
+            - id: pair_59df88980e1f44c19f547129d08af8f8
+              name: "thumbnail   "
+              value: ""
+              description: ""
+              disabled: false
+              type: file
+              multiline: true
+              fileName: C:\Users\Matheus\Pictures\thumbnail\introducao-a-programacao.jpg
+        headers:
+          - name: Content-Type
+            value: multipart/form-data
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - name: Lesson
+        meta:
+          id: fld_a92f977b5a8444e7b5bf6c3b69ae5486
+          created: 1759796595820
+          modified: 1759798563616
+          sortKey: -1759088853724
+          description: ""
+        children:
+          - url: "{{ _.baseURl }}/courses/1/lessons"
+            name: Criar Aula (ADM)
+            meta:
+              id: req_2be47d7b567845e6b277a561214cc57b
+              created: 1759796604285
+              modified: 1761096925328
+              isPrivate: false
+              description: ""
+              sortKey: -1759796598495
+            method: POST
+            body:
+              mimeType: application/json
+              text: >-
+                {
+                  "cursoId": 1,
+                  "titulo": "titulo",
+                  "descricao": "Curso completo de desenvolvimento web utilizando Spring Boot, cobrindo desde conceitos básicos até tópicos avançados como segurança, testes e deploy. Os alunos aprenderão a criar APIs RESTful, trabalhar com banco de dados, implementar autenticação e autorização, além de boas práticas de desenvolvimento",
+                  "urlVideo": "https://www.youtube.com/watch?v=QsSUbuYeEFk"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+              - name: User-Agent
+                value: insomnia/11.6.0
+                id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+            authentication:
+              type: bearer
+              token: "{{ _.jwt_token }}"
+              prefix: "Bearer "
+              disabled: false
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.baseURl }}/courses/1/lessons/1"
+            name: Atualizar Aula (ADM)
+            meta:
+              id: req_6c6ca58329ff436b9cc8433caa0d1632
+              created: 1759797173238
+              modified: 1761096935424
+              isPrivate: false
+              description: ""
+              sortKey: -1759444805167.5
+            method: PUT
+            body:
+              mimeType: application/json
+              text: >-
+                {
+                  "titulo": "titulo atualizado3",
+                  "descricao": "Curso completo de desenvolvimento web utilizando Spring Boot, cobrindo desde conceitos básicos até tópicos avançados como segurança, testes e deploy. Os alunos aprenderão a criar APIs RESTful, trabalhar com banco de dados, implementar autenticação e autorização, além de boas práticas de desenvolvimento",
+                  "urlVideo": "https://www.youtube.com/watch?v=QsSUbuYeEFk"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+              - name: User-Agent
+                value: insomnia/11.6.0
+                id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+            authentication:
+              type: bearer
+              token: "{{ _.jwt_token }}"
+              prefix: "Bearer "
+              disabled: false
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.baseURl }}/courses/1/lessons/1"
+            name: Buscar Aula por ID (USUA LOGADO)
+            meta:
+              id: req_a3ac1da6f0d84ff7a58a181aecfb8cff
+              created: 1759797642281
+              modified: 1761097057392
+              isPrivate: false
+              description: ""
+              sortKey: -1759268908503.75
+            method: GET
+            headers:
+              - name: User-Agent
+                value: insomnia/11.6.0
+                id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+            authentication:
+              type: bearer
+              token: "{{ _.jwt_token }}"
+              prefix: "Bearer "
+              disabled: false
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.baseURl }}/courses/1/lessons"
+            name: Buscar Aulas por Curso ID (TODOS)
+            meta:
+              id: req_69ccea7c27b64bde905809c48c357e5c
+              created: 1759797674028
+              modified: 1761097088050
+              isPrivate: false
+              description: ""
+              sortKey: -1759180960171.875
+            method: GET
+            headers:
+              - name: User-Agent
+                value: insomnia/11.6.0
+                id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+            authentication:
+              type: bearer
+              token: "{{ _.jwt_token }}"
+              prefix: "Bearer "
+              disabled: true
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.baseURl }}/courses/1/lessons/reorder"
+            name: Alterar Ordem das Aulas (ADM)
+            meta:
+              id: req_4a9dbecc16cd4637972c39f680273a12
+              created: 1759882936643
+              modified: 1761096947295
+              isPrivate: false
+              description: ""
+              sortKey: -1759356856835.625
+            method: PATCH
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "aulas": [
+                    {"id": 33, "ordemAula": 4},
+                    {"id": 3, "ordemAula": 3},
+                    {"id": 2, "ordemAula": 2},
+                    {"id": 1, "ordemAula": 1}
+                  ]
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+              - name: User-Agent
+                value: insomnia/11.6.0
+                id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+            authentication:
+              type: bearer
+              token: "{{ _.jwt_token }}"
+              prefix: "Bearer "
+              disabled: false
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+  - name: Área de Conhecimento
+    meta:
+      id: fld_a185742bfd5247c3b28a61f6bcbf6cef
+      created: 1759092997586
+      modified: 1761097133689
+      sortKey: -1758633079471.25
+      description: ""
+    children:
+      - url: "{{ _.baseURl }}/knowledge-area"
+        name: Criar Área de Conhecimento (ADM)
+        meta:
+          id: req_824c9b2010854af38e0c5a10833242ff
+          created: 1759093009941
+          modified: 1761097148032
+          isPrivate: false
+          description: ""
+          sortKey: -1759093011840
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"name": "informática",
+            	"visible": true
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl }}/knowledge-area"
+        name: Buscar Áreas de Conhecimento (TODOS)
+        meta:
+          id: req_bf90803badc649249aee78737921d59e
+          created: 1759095806154
+          modified: 1761097167867
+          isPrivate: false
+          description: ""
+          sortKey: -1759092052412.5
+        method: GET
+        parameters:
+          - id: pair_c7111cb94ad647b09ee1e7f31841746b
+            name: name
+            value: tecnologia
+            description: ""
+            disabled: true
+          - id: pair_74168c5e9a2646baab5f017cba652c8f
+            name: active
+            value: "true"
+            description: ""
+            disabled: true
+          - id: pair_05d8ab8c01614df6ad082eca79f6bf64
+            name: page
+            value: "1"
+            description: ""
+            disabled: true
+          - id: pair_fd694b61d4cb4903bed2d623c64e9c53
+            name: size
+            value: "1"
+            description: ""
+            disabled: true
+          - id: pair_47611411330c4feeb2d02061d0736673
+            name: direction
+            value: desc
+            description: ""
+            disabled: true
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Campus
+    meta:
+      id: fld_1bfb675a72f44caa9bf17e869df59203
+      created: 1759097517511
+      modified: 1759798535678
+      sortKey: -1758481156484
+      description: ""
+    children:
+      - url: "{{ _.baseURl }}/campus"
+        name: Criar Campus (ADM)
+        meta:
+          id: req_59e1de0476c04487b9c9233747f1762f
+          created: 1759097517512
+          modified: 1761097187286
+          isPrivate: false
+          description: ""
+          sortKey: -1759093011840
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"name": "IFPR campus Foz do Iguaçus",
+            	"visible": true
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl }}/campus"
+        name: Buscar Campus (TODOS)
+        meta:
+          id: req_d9fedcc644084a709cc52ec62e33d14f
+          created: 1759097517513
+          modified: 1761097199266
+          isPrivate: false
+          description: ""
+          sortKey: -1759092052412.5
+        method: GET
+        parameters:
+          - id: pair_c7111cb94ad647b09ee1e7f31841746b
+            name: name
+            value: tecnologia
+            description: ""
+            disabled: true
+          - id: pair_74168c5e9a2646baab5f017cba652c8f
+            name: active
+            value: "true"
+            description: ""
+            disabled: true
+          - id: pair_05d8ab8c01614df6ad082eca79f6bf64
+            name: page
+            value: "1"
+            description: ""
+            disabled: true
+          - id: pair_fd694b61d4cb4903bed2d623c64e9c53
+            name: size
+            value: "1"
+            description: ""
+            disabled: true
+          - id: pair_47611411330c4feeb2d02061d0736673
+            name: direction
+            value: desc
+            description: ""
+            disabled: true
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Matricula
+    meta:
+      id: fld_ebb52eb7e0e24969b62a0f944dc64195
+      created: 1760399451587
+      modified: 1761097228497
+      sortKey: -1761096117899
+      description: ""
+    children:
+      - url: "{{ _.baseURl }}/enrollments"
+        name: Inscrever-se (ALUNO)
+        meta:
+          id: req_45497eedb82f43d19d62c89bebebb2a1
+          created: 1760399467348
+          modified: 1761096801729
+          isPrivate: false
+          description: ""
+          sortKey: -1760408852734
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "cursoId": 1
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl }}/enrollments/my-courses"
+        name: Buscar Meus Cursos (ALUNO)
+        meta:
+          id: req_842f20c058ed4d1d96e50c865865d312
+          created: 1760577280248
+          modified: 1761096804010
+          isPrivate: false
+          description: ""
+          sortKey: -1760408852634
+        method: GET
+        parameters:
+          - id: pair_53af6b87b01e460a96ec03213d240058
+            name: nome
+            value: ""
+            description: ""
+            disabled: false
+          - id: pair_c9be6e9538184cf78ededff2736d0a88
+            name: concluido
+            value: ""
+            description: ""
+            disabled: false
+          - id: pair_c6a762daa122418db394da4f084c5bcf
+            name: page
+            value: ""
+            description: ""
+            disabled: false
+          - id: pair_1d09fc72efb14767a5f3969e44c3d45d
+            name: size
+            value: ""
+            description: ""
+            disabled: false
+          - id: pair_240f0186605944dc9dc1209b79c791f0
+            name: direction
+            value: ""
+            description: ""
+            disabled: false
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - name: Progresso
+        meta:
+          id: fld_6072860d3d8342c1a20552d2244039b5
+          created: 1760408852534
+          modified: 1760408852534
+          sortKey: -1760408852534
+          description: ""
+        children:
+          - url: "{{ _.baseURl }}/enrollments/1/lessons/5/progress"
+            name: ProgressoAula (ALUNO)
+            meta:
+              id: req_acecc2a06f614228bf115bfb0636420f
+              created: 1760408866157
+              modified: 1761096811858
+              isPrivate: false
+              description: ""
+              sortKey: -1760408871563
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                	"concluido": true
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+              - name: User-Agent
+                value: insomnia/11.6.0
+                id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+            authentication:
+              type: bearer
+              token: "{{ _.jwt_token }}"
+              prefix: "Bearer "
+              disabled: false
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+  - name: Solicitação Certificado
+    meta:
+      id: fld_4c096c84c0e24873989a5b2285fb9b4e
+      created: 1761096117849
+      modified: 1761096117849
+      sortKey: -1761096117849
+      description: ""
+    children:
+      - url: "{{ _.baseURl }}/certificate-requests"
+        name: Buscar Solicitações (ADM)
+        meta:
+          id: req_50ecd39d8f944ba592834cf426d1534f
+          created: 1761096128891
+          modified: 1761097941299
+          isPrivate: false
+          description: ""
+          sortKey: -1761096121658
+        method: GET
+        parameters:
+          - id: pair_208b77bb7beb4b4fb9fc06621a3af49a
+            name: status
+            value: reprovado
+            description: ""
+            disabled: false
+          - id: pair_ce3c4b8c26b14443843b14c007a8bf25
+            name: page
+            value: ""
+            description: ""
+            disabled: false
+          - id: pair_6ba3a69ed44946c482d3dd6440408f68
+            name: size
+            value: ""
+            description: ""
+            disabled: false
+          - id: pair_e5b9b578989b43f1851dcb95d7484b6b
+            name: direction
+            value: ""
+            description: ""
+            disabled: false
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl }}/certificate-requests/a8c40246-07c2-4a24-982c-615f85f5b1cc"
+        name: Aprovar Solicitação por ID (ADM)
+        meta:
+          id: req_d828226ad7844091b2161831e6a04067
+          created: 1761096243866
+          modified: 1761096719448
+          isPrivate: false
+          description: ""
+          sortKey: -1760752496610.5
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"status": "aprovado",
+            	"motivoReprovacao": "opcional"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl }}/certificate-requests"
+        name: Aprovar Solicitação Batch (ADM)
+        meta:
+          id: req_437e7ffa89174bb6ad4a1004f76ddaab
+          created: 1761096366590
+          modified: 1761096630685
+          isPrivate: false
+          description: ""
+          sortKey: -1760580684086.75
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: |-
+            [
+            	{
+            		"requestId": "",
+            		"status": "aprovado",
+            		"motivoReprovacao": "opcional"
+            	}
+            ]
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl }}/certificate-requests/a8c40246-07c2-4a24-982c-615f85f5b1cc"
+        name: Buscar Solicitação por ID (ADM)
+        meta:
+          id: req_3c04327406604500af651ca65ada7d0f
+          created: 1761096569528
+          modified: 1761096609251
+          isPrivate: false
+          description: ""
+          sortKey: -1760924309134.25
+        method: GET
+        parameters:
+          - id: pair_403064f6fb4f4d62aeb7c07a64397f85
+            name: ""
+            value: ""
+            description: ""
+            disabled: false
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl }}/certificate-requests/count/pending"
+        name: Quantidade Solicitações Pendentes (ADM)
+        meta:
+          id: req_7aaf8acda59c4c88a1e4687319c6e214
+          created: 1761096657566
+          modified: 1761096665716
+          isPrivate: false
+          description: ""
+          sortKey: -1760838402872.375
+        method: GET
+        parameters:
+          - id: pair_403064f6fb4f4d62aeb7c07a64397f85
+            name: ""
+            value: ""
+            description: ""
+            disabled: false
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_35488ce7784501525d7fdd16a2cdbad5cb205d5a
+    created: 1757808934919
+    modified: 1761096093610
+environments:
+  name: Base Environment
+  meta:
+    id: env_35488ce7784501525d7fdd16a2cdbad5cb205d5a
+    created: 1757808934918
+    modified: 1761096093611
+    isPrivate: false
+  data:
+    baseURl: http://localhost:8080/mooc
+    jwt_token: "{% response 'body', 'req_02f70b4f8d33423ba4884c5cefdea672',
+      'b64::JC5hY2Nlc3NfdG9rZW4=::46b', 'never', 60 %}"
