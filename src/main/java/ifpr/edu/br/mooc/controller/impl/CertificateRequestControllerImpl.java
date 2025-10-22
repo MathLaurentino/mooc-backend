@@ -37,9 +37,16 @@ public class CertificateRequestControllerImpl implements CertificateRequestContr
         var sortDirection = "desc".equalsIgnoreCase(direction) ? Sort.Direction.DESC : Sort.Direction.ASC;
         var pageable = PageRequest.of(page, size, Sort.by(sortDirection, "createdAt"));
 
-        CertificateRequestStatus requestStatus = status != null
-                ? CertificateRequestStatus.fromCode(status)
-                : null;
+        CertificateRequestStatus requestStatus = null;
+        if (status != null && !status.isBlank()) {
+            try {
+                requestStatus = CertificateRequestStatus.fromCode(status);
+            } catch (IllegalArgumentException e) {
+                throw new ifpr.edu.br.mooc.exceptions.base.BadRequestException(
+                        "Status inválido. Valores permitidos: 'analise', 'aprovado', 'reprovado'"
+                );
+            }
+        }
 
         var spec = new CertificateRequestSpecification(requestStatus);
         var response = certificateRequestService.getAllRequests(spec, pageable);
