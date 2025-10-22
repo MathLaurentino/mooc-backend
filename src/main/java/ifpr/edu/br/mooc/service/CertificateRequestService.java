@@ -120,17 +120,18 @@ public class CertificateRequestService {
 
     @Transactional
     public List<CertificateRequestResDto> batchUpdateRequestStatus(CertificateRequestBatchUpdateDto dto) {
-        log.info("Batch updating {} certificate requests", dto.requests().size());
+        log.info("Batch updating {} certificate requests with status: {}",
+                dto.requests().size(), dto.status());
 
         List<CertificateRequestResDto> results = new ArrayList<>();
 
+        CertificateRequestUpdateDto updateDto = new CertificateRequestUpdateDto(
+                dto.status(),
+                null
+        );
+
         for (CertificateRequestBatchUpdateDto.RequestUpdate requestUpdate : dto.requests()) {
             try {
-                CertificateRequestUpdateDto updateDto = new CertificateRequestUpdateDto(
-                        requestUpdate.status(),
-                        requestUpdate.motivoReprovacao()
-                );
-
                 CertificateRequestResDto result = updateRequestStatus(
                         requestUpdate.requestId(),
                         updateDto
