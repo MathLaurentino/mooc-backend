@@ -94,14 +94,13 @@ public class CertificateValidationService {
             String algorithm = info.getMoreInfo("Algorithm");
             String extractedHash = info.getMoreInfo("Hash");
             String signature = info.getMoreInfo("Signature");
-            String publicKey = info.getMoreInfo("PublicKey");
 
             pdfDocument.close();
 
             // Validar se todos os metadados necessários existem
             if (studentName == null || studentCpf == null || courseName == null || 
                 workload == null || campusName == null || completionDate == null ||
-                extractedHash == null || signature == null || publicKey == null) {
+                extractedHash == null || signature == null) {
                 
                 log.warn("PDF metadata incomplete or missing");
                 return CertificateValidationResponseDto.invalid(
@@ -142,10 +141,11 @@ public class CertificateValidationService {
             }
 
             // PASSO 2: Verificar assinatura digital usando a chave pública
+            String systemPublicKey = cryptographyService.getPublicKeyAsString();
             boolean signatureValid = cryptographyService.verifySignature(
                     extractedHash,
                     signature,
-                    publicKey
+                    systemPublicKey
             );
 
             if (!signatureValid) {

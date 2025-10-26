@@ -1,9 +1,14 @@
 package ifpr.edu.br.mooc.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -18,19 +23,88 @@ public class CryptographyService {
     private static final String SIGNATURE_ALGORITHM = "SHA256withRSA";
     private static final int KEY_SIZE = 2048;
 
+    @Value("${crypto.keys.storage-path:./keys}")
+    private String keysStoragePath;
+
+    private static final String PRIVATE_KEY_FILE = "private_key.pem";
+    private static final String PUBLIC_KEY_FILE = "public_key.pem";
+
     private KeyPair keyPair;
 
     public CryptographyService() {
+        // Construtor vazio - inicialização via @PostConstruct
+    }
+
+    @jakarta.annotation.PostConstruct
+    public void init() {
         try {
-            // Gera par de chaves ao inicializar o serviço
-            KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ALGORITHM);
-            keyGen.initialize(KEY_SIZE);
-            this.keyPair = keyGen.generateKeyPair();
-            log.info("RSA key pair generated successfully");
-        } catch (NoSuchAlgorithmException e) {
-            log.error("Error generating RSA key pair", e);
+            Path keysDir = Paths.get(keysStoragePath);
+            Path privateKeyPath = keysDir.resolve(PRIVATE_KEY_FILE);
+            Path publicKeyPath = keysDir.resolve(PUBLIC_KEY_FILE);
+
+            // Verifica se as chaves já existem
+            if (Files.exists(privateKeyPath) && Files.exists(publicKeyPath)) {
+                log.info("Loading existing RSA keys from {}", keysStoragePath);
+                this.keyPair = loadKeyPair(privateKeyPath, publicKeyPath);
+                log.info("RSA keys loaded successfully");
+            } else {
+                log.info("Generating new RSA key pair and saving to {}", keysStoragePath);
+                this.keyPair = generateAndSaveKeyPair(keysDir, privateKeyPath, publicKeyPath);
+                log.info("New RSA key pair generated and saved successfully");
+            }
+        } catch (Exception e) {
+            log.error("Error initializing cryptography service", e);
             throw new RuntimeException("Failed to initialize cryptography service", e);
         }
+    }
+
+    private KeyPair generateAndSaveKeyPair(Path keysDir, Path privateKeyPath, Path publicKeyPath)
+            throws NoSuchAlgorithmException, IOException {
+        // Cria o diretório se não existir
+        Files.createDirectories(keysDir);
+
+        // Gera o par de chaves
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ALGORITHM);
+        keyGen.initialize(KEY_SIZE);
+        KeyPair keyPair = keyGen.generateKeyPair();
+
+        // Salva a chave privada
+        String privateKeyPEM = "-----BEGIN PRIVATE KEY-----\n" +
+                Base64.getMimeEncoder(64, "\n".getBytes()).encodeToString(keyPair.getPrivate().getEncoded()) +
+                "\n-----END PRIVATE KEY-----";
+        Files.writeString(privateKeyPath, privateKeyPEM);
+
+        // Salva a chave pública
+        String publicKeyPEM = "-----BEGIN PUBLIC KEY-----\n" +
+                Base64.getMimeEncoder(64, "\n".getBytes()).encodeToString(keyPair.getPublic().getEncoded()) +
+                "\n-----END PUBLIC KEY-----";
+        Files.writeString(publicKeyPath, publicKeyPEM);
+
+        log.info("Keys saved to disk");
+        return keyPair;
+    }
+
+    private KeyPair loadKeyPair(Path privateKeyPath, Path publicKeyPath) throws Exception {
+        // Lê a chave privada
+        String privateKeyPEM = Files.readString(privateKeyPath)
+                .replace("-----BEGIN PRIVATE KEY-----", "")
+                .replace("-----END PRIVATE KEY-----", "")
+                .replaceAll("\\s", "");
+        byte[] privateKeyBytes = Base64.getDecoder().decode(privateKeyPEM);
+        PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM);
+        PrivateKey privateKey = keyFactory.generatePrivate(privateKeySpec);
+
+        // Lê a chave pública
+        String publicKeyPEM = Files.readString(publicKeyPath)
+                .replace("-----BEGIN PUBLIC KEY-----", "")
+                .replace("-----END PUBLIC KEY-----", "")
+                .replaceAll("\\s", "");
+        byte[] publicKeyBytes = Base64.getDecoder().decode(publicKeyPEM);
+        X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
+        PublicKey publicKey = keyFactory.generatePublic(publicKeySpec);
+
+        return new KeyPair(publicKey, privateKey);
     }
 
     /**
