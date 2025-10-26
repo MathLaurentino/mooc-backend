@@ -1,13 +1,13 @@
 package ifpr.edu.br.mooc.controller.impl;
 
 import ifpr.edu.br.mooc.controller.CertificateController;
-import ifpr.edu.br.mooc.dto.certificate.CertificateResponseDto;
 import ifpr.edu.br.mooc.dto.certificate.GenerateCertificateRequestDto;
 import ifpr.edu.br.mooc.service.CertificateService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -20,14 +20,32 @@ public class CertificateControllerImpl implements CertificateController {
 
     private final CertificateService certificateService;
 
+    /**
+     * Endpoint único que gera ou retorna PDF do certificado
+     * - Verifica se já existe certificado
+     * - Compara hash dos dados
+     * - Cria novo registro se dados mudaram
+     * - Retorna PDF do certificado
+     */
     @Override
     @PostMapping("/generate")
     @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<CertificateResponseDto> generateCertificate(
+    public ResponseEntity<byte[]> generateOrDownloadCertificate(
             @RequestBody @Valid GenerateCertificateRequestDto dto
     ) {
-        log.info("Received request to generate certificate for enrollment: {}", dto.enrollmentId());
-        CertificateResponseDto response = certificateService.generateCertificate(dto.enrollmentId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        log.info("Received request to generate/download certificate for enrollment: {}", dto.enrollmentId());
+
+        byte[] pdfBytes = certificateService.generateOrGetCertificatePdf(dto.enrollmentId());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "certificado.pdf");
+        headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(pdfBytes);
     }
+
 }

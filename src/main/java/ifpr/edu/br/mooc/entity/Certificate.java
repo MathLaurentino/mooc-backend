@@ -2,8 +2,10 @@ package ifpr.edu.br.mooc.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "certificado")
@@ -17,8 +19,8 @@ import java.time.LocalDateTime;
 public class Certificate {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(length = 36)
+    private String id;
 
     @Column(name = "inscricao_id", nullable = false)
     private Long enrollmentId;
@@ -53,4 +55,15 @@ public class Certificate {
 
     @Column(name = "chave_publica", nullable = false, length = 500)
     private String publicKey;
+
+    @Column(name = "criado_em", nullable = false, updatable = false)
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
+    }
 }
