@@ -49,7 +49,7 @@ public class PdfGeneratorService {
             pdfDoc.setDefaultPageSize(PageSize.A4.rotate());
 
             Document document = new Document(pdfDoc);
-            document.setMargins(50, 50, 50, 50);
+            document.setMargins(30, 50, 30, 50);
 
             // Adicionar metadados do certificado
             addMetadata(pdfDoc, certificate);
@@ -63,8 +63,8 @@ public class PdfGeneratorService {
                     .setFont(boldFont)
                     .setFontSize(36)
                     .setTextAlignment(TextAlignment.CENTER)
-                    .setMarginTop(60)
-                    .setMarginBottom(20);
+                    .setMarginTop(20)
+                    .setMarginBottom(15);
             document.add(title);
 
             // Subtítulo
@@ -72,7 +72,7 @@ public class PdfGeneratorService {
                     .setFont(regularFont)
                     .setFontSize(11)
                     .setTextAlignment(TextAlignment.CENTER)
-                    .setMarginBottom(30);
+                    .setMarginBottom(20);
             document.add(subtitle);
 
             // "Certifica que:"
@@ -80,7 +80,7 @@ public class PdfGeneratorService {
                     .setFont(regularFont)
                     .setFontSize(14)
                     .setTextAlignment(TextAlignment.CENTER)
-                    .setMarginBottom(20);
+                    .setMarginBottom(15);
             document.add(certifies);
 
             // Texto principal com dados do aluno
@@ -101,7 +101,7 @@ public class PdfGeneratorService {
                     .setTextAlignment(TextAlignment.CENTER)
                     .setMarginLeft(80)
                     .setMarginRight(80)
-                    .setMarginBottom(40);
+                    .setMarginBottom(25);
             document.add(mainContent);
 
             // Local e data de emissão
@@ -112,28 +112,44 @@ public class PdfGeneratorService {
                     .setFont(regularFont)
                     .setFontSize(12)
                     .setTextAlignment(TextAlignment.CENTER)
-                    .setMarginBottom(30);
+                    .setMarginBottom(20);
             document.add(location);
 
-            // QR Code
+            // Container para QR Code e Código (lado a lado)
+            com.itextpdf.layout.element.Table table = new com.itextpdf.layout.element.Table(2);
+            table.setWidth(com.itextpdf.layout.properties.UnitValue.createPercentValue(100));
+            table.setMarginTop(10);
+
+            // Célula esquerda: QR Code
             String validationUrl = String.format("%s/mooc/certificates/validate/%s",
                     baseUrl, certificate.getId());
             byte[] qrCodeBytes = qrCodeService.generateQRCode(validationUrl);
             Image qrCode = new Image(ImageDataFactory.create(qrCodeBytes));
             qrCode.setWidth(120);
             qrCode.setHeight(120);
-            qrCode.setHorizontalAlignment(com.itextpdf.layout.properties.HorizontalAlignment.RIGHT);
-            qrCode.setMarginRight(50);
-            document.add(qrCode);
 
-            // Código do certificado (abaixo do QR Code)
+            com.itextpdf.layout.element.Cell qrCell = new com.itextpdf.layout.element.Cell();
+            qrCell.add(qrCode);
+            qrCell.setTextAlignment(TextAlignment.CENTER);
+            qrCell.setBorder(com.itextpdf.layout.borders.Border.NO_BORDER);
+            qrCell.setPaddingLeft(100);
+            table.addCell(qrCell);
+
+            // Célula direita: Código do certificado
             Paragraph certificateCode = new Paragraph(String.format("Código: %s", certificate.getId()))
                     .setFont(regularFont)
                     .setFontSize(10)
-                    .setTextAlignment(TextAlignment.RIGHT)
-                    .setMarginRight(50)
-                    .setMarginTop(5);
-            document.add(certificateCode);
+                    .setTextAlignment(TextAlignment.CENTER);
+
+            com.itextpdf.layout.element.Cell codeCell = new com.itextpdf.layout.element.Cell();
+            codeCell.add(certificateCode);
+            codeCell.setTextAlignment(TextAlignment.CENTER);
+            codeCell.setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE);
+            codeCell.setBorder(com.itextpdf.layout.borders.Border.NO_BORDER);
+            codeCell.setPaddingRight(100);
+            table.addCell(codeCell);
+
+            document.add(table);
 
             document.close();
 
