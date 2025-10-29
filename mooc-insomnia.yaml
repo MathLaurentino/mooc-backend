@@ -10,7 +10,7 @@ collection:
     meta:
       id: fld_118125d5c8e54675bf79f732e7ac6c23
       created: 1757873464535
-      modified: 1761097225610
+      modified: 1761696818727
       sortKey: -1761096118049
       description: ""
     children:
@@ -52,7 +52,7 @@ collection:
         meta:
           id: req_02f70b4f8d33423ba4884c5cefdea672
           created: 1757873476510
-          modified: 1761096092168
+          modified: 1761696817706
           isPrivate: false
           description: ""
           sortKey: -1759091090555
@@ -61,7 +61,7 @@ collection:
           mimeType: application/json
           text: |-
             {
-            	"email": "admin@mooc.ifpr.edu.br",
+            	"email": "estudante@mooc.ifpr.edu.br",
             	"password": "senha"
             }
         headers:
@@ -176,12 +176,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: "{{ _.baseURl }}/courses/1"
+      - url: "{{ _.baseURl }}/courses/3"
         name: Atualizar Dados Curso (ADM)
         meta:
           id: req_08b6efb7b9da4a77b051cd69e938a8a0
           created: 1759457065136
-          modified: 1761096911009
+          modified: 1761611105360
           isPrivate: false
           description: ""
           sortKey: -1759088853883.375
@@ -217,12 +217,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: "{{ _.baseURl }}/courses/1"
+      - url: "{{ _.baseURl }}/courses/2"
         name: Buscar Curso por id (TODOS)
         meta:
           id: req_b06e9cc155444a15a2052c722274f6aa
           created: 1759457085165
-          modified: 1761096877629
+          modified: 1761696103518
           isPrivate: false
           description: ""
           sortKey: -1759088853849
@@ -254,7 +254,7 @@ collection:
         meta:
           id: req_e0e0bc64ed1c46ab982763376a05af37
           created: 1759457258314
-          modified: 1761096866178
+          modified: 1761611091625
           isPrivate: false
           description: ""
           sortKey: -1759088853861.5
@@ -317,7 +317,7 @@ collection:
         meta:
           id: req_cfa92ff7afb54518935f61a250675e19
           created: 1759457359435
-          modified: 1761096908929
+          modified: 1761611122582
           isPrivate: false
           description: ""
           sortKey: -1759088853880.25
@@ -347,12 +347,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: "{{ _.baseURl }}/courses/1/thumbnail"
+      - url: "{{ _.baseURl }}/courses/2/thumbnail"
         name: Adicionar / Atualizar Thumb do curso (ADM
         meta:
           id: req_b9fd98f933e944788a5088ee8c53496b
           created: 1761008254818
-          modified: 1761096825375
+          modified: 1761616673457
           isPrivate: false
           description: ""
           sortKey: -1759088853886.5
@@ -367,7 +367,8 @@ collection:
               disabled: false
               type: file
               multiline: true
-              fileName: C:\Users\Matheus\Pictures\thumbnail\introducao-a-programacao.jpg
+              fileName: C:\Users\Matheus\Pictures\Screenshots\Captura de tela 2024-08-20
+                172241.png
         headers:
           - name: Content-Type
             value: multipart/form-data
@@ -613,7 +614,7 @@ collection:
         meta:
           id: req_bf90803badc649249aee78737921d59e
           created: 1759095806154
-          modified: 1761097167867
+          modified: 1761697303655
           isPrivate: false
           description: ""
           sortKey: -1759092052412.5
@@ -636,9 +637,9 @@ collection:
             disabled: true
           - id: pair_fd694b61d4cb4903bed2d623c64e9c53
             name: size
-            value: "1"
+            value: "1000000"
             description: ""
-            disabled: true
+            disabled: false
           - id: pair_47611411330c4feeb2d02061d0736673
             name: direction
             value: desc
@@ -806,7 +807,7 @@ collection:
         meta:
           id: req_842f20c058ed4d1d96e50c865865d312
           created: 1760577280248
-          modified: 1761096804010
+          modified: 1761614406747
           isPrivate: false
           description: ""
           sortKey: -1760408852634
@@ -1094,18 +1095,164 @@ collection:
             send: true
             store: true
           rebuildPath: true
+  - name: Certificados
+    meta:
+      id: fld_abd248ece13b4c99833e3b84a6070cd3
+      created: 1761514036588
+      modified: 1761514036588
+      sortKey: -1761514036588
+      description: ""
+    children:
+      - url: "{{ _.baseURl }}/certificates/generate"
+        name: Gerar Certificado (ALUNO)
+        meta:
+          id: req_3ccff04f31dc48d18882a9d0bc8c98ae
+          created: 1761514067693
+          modified: 1761521416447
+          isPrivate: false
+          description: ""
+          sortKey: -1761514073941
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "enrollmentId": 1
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl }}/certificates/validate/code"
+        name: Validar Certificado Por Codigo (TODOS)
+        meta:
+          id: req_2ef5934edbd24f009e759e72323bf8f1
+          created: 1761520192318
+          modified: 1761699369020
+          isPrivate: false
+          description: ""
+          sortKey: -1761305097799.5
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "certificateCode": "cad87dbb-2b03-4ef7-97d1-a940c93c0c43"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: true
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl }}/certificates/validate/pdf"
+        name: Validar Certificado Por Arquivo (TODOS)
+        meta:
+          id: req_bdbbe45735f84f1abf601d23912eec70
+          created: 1761520287276
+          modified: 1761699441721
+          isPrivate: false
+          description: ""
+          sortKey: -1761200609728.75
+        method: POST
+        body:
+          mimeType: multipart/form-data
+          params:
+            - id: pair_e4eea140d0874b169bc183d125787e10
+              name: file
+              value: ""
+              description: ""
+              disabled: false
+              type: file
+              multiline: true
+              fileName: C:\Users\Matheus\Downloads\certificado-mooc-ifpr---- (1).pdf
+        headers:
+          - name: Content-Type
+            value: multipart/form-data
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl
+          }}/certificates/validate/code/cad87dbb-2b03-4ef7-97d1-a940c93c0c43"
+        name: Validar Certificado Por Codigo (TODOS)
+        meta:
+          id: req_c8f6d373e50d4ab4a03a425c0aefa22c
+          created: 1761699654173
+          modified: 1761699753062
+          isPrivate: false
+          description: ""
+          sortKey: -1761252853764.125
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: true
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
 cookieJar:
   name: Default Jar
   meta:
     id: jar_35488ce7784501525d7fdd16a2cdbad5cb205d5a
     created: 1757808934919
-    modified: 1761096093610
+    modified: 1761696818724
 environments:
   name: Base Environment
   meta:
     id: env_35488ce7784501525d7fdd16a2cdbad5cb205d5a
     created: 1757808934918
-    modified: 1761096093611
+    modified: 1761696818726
     isPrivate: false
   data:
     baseURl: http://localhost:8080/mooc
