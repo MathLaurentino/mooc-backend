@@ -73,7 +73,6 @@ public class CourseService {
         course.setThumbnail(thumbnailPath);
         courseRepository.save(course);
 
-        // Gera URL para acesso
         String thumbnailUrl = generateThumbnailUrl(courseId);
 
         return new CourseThumbnailResDto(courseId, thumbnailUrl);
@@ -231,7 +230,19 @@ public class CourseService {
         }
     }
 
+    /**
+     * Gera URL da thumbnail com parâmetro de versão para invalidar cache do navegador
+     * O parâmetro v é baseado no timestamp de última atualização do curso
+     */
     private String generateThumbnailUrl(Long courseId) {
-        return String.format("%s/mooc/courses/%d/thumbnail", baseUrl, courseId);
+        Course course = courseRepository.findById(courseId).orElse(null);
+        if (course == null || course.getUpdatedAt() == null) {
+            return String.format("%s/mooc/courses/%d/thumbnail", baseUrl, courseId);
+        }
+
+        // Usa o timestamp de atualização para invalidar cache
+        // Sempre que o curso for atualizado (incluindo upload de nova thumbnail), a URL muda
+        long version = course.getUpdatedAt().toEpochSecond(java.time.ZoneOffset.UTC);
+        return String.format("%s/mooc/courses/%d/thumbnail?v=%d", baseUrl, courseId, version);
     }
 }

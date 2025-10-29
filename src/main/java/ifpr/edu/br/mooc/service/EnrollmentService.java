@@ -16,10 +16,14 @@ import ifpr.edu.br.mooc.repository.EnrollmentRepository;
 import ifpr.edu.br.mooc.repository.UserRepository;
 import ifpr.edu.br.mooc.repository.specification.MyCourseSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +33,9 @@ public class EnrollmentService {
     private final UserRepository userRepository;
     private final CourseRepository courseRepository;
     private final EnrollmentMapper mapper;
+
+    @Value("${server.base-url:http://localhost:8080}")
+    private String baseUrl;
 
     @Transactional
     public EnrollmentDTO createEnrollment(EnrollmentRequestDTO dto, Long userId) {
@@ -60,9 +67,53 @@ public class EnrollmentService {
     public PageResponse<MyCoursesResDto> getMyCourses(MyCourseSpecification spec, Pageable pageable) {
         Page<Enrollment> enrollmentPage = enrollmentRepository.findAll(spec, pageable);
 
-        Page<MyCoursesResDto> dtoPage = enrollmentPage.map(mapper::toMyCoursesResDto);
+        // Mapeia os enrollments e adiciona a URL completa da thumbnail
+        List<MyCoursesResDto> dtoList = enrollmentPage.getContent().stream()
+                .map(enrollment -> {
+                    MyCoursesResDto dto = mapper.toMyCoursesResDto(enrollment);
 
-        return new PageResponse<>(dtoPage);
+                    String thumbnailUrl = generateThumbnailUrl(enrollment.getCourse());
+
+                    return new MyCoursesResDto(
+                            dto.enrollmentId(),
+                            dto.cursoId(),
+                            dto.nome(),
+                            dto.nomeProfessor(),
+                            thumbnailUrl,
+                            dto.cargaHoraria(),
+                            dto.concluido(),
+                            dto.campus(),
+                            dto.areaConhecimento()
+                    );
+                })
+                .collect(Collectors.toList());
+
+        return new PageResponse<>(
+                dtoList,
+                enrollmentPage.getNumber(),
+                enrollmentPage.getSize(),
+                enrollmentPage.getTotalElements(),
+                enrollmentPage.getTotalPages(),
+                enrollmentPage.isFirst(),
+                enrollmentPage.isLast()
+        );
+    }
+
+    /**
+     * Gera URL da thumbnail com parâmetro de versão para invalidar cache do navegador
+     */
+    private String generateThumbnailUrl(Course course) {
+        if (course == null || course.getThumbnail() == null || course.getThumbnail().isBlank()) {
+            return null;
+        }
+
+        if (course.getUpdatedAt() == null) {
+            return String.format("%s/mooc/courses/%d/thumbnail", baseUrl, course.getId());
+        }
+
+        // Usa o timestamp de atualização para invalidar cache
+        long version = course.getUpdatedAt().toEpochSecond(java.time.ZoneOffset.UTC);
+        return String.format("%s/mooc/courses/%d/thumbnail?v=%d", baseUrl, course.getId(), version);
     }
 
 }
