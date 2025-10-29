@@ -12,6 +12,8 @@ public interface CertificateController {
 
     ResponseEntity<CertificateValidationResponseDto> validateByCode(ValidateCertificateByCodeRequestDto dto);
 
+    ResponseEntity<CertificateValidationResponseDto> validateByCode(String dto);
+
     ResponseEntity<CertificateValidationResponseDto> validateByPdf(MultipartFile file);
 
 }

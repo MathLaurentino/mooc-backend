@@ -173,6 +173,7 @@ public class PdfGeneratorService {
         info.setCreator("MOOC IFPR Platform");
 
         // Adicionar dados de verificação como metadados customizados
+        // A chave pública NÃO é mais incluída aqui
         Map<String, String> customMetadata = new HashMap<>();
         customMetadata.put("CertificateId", certificate.getId().toString());
         customMetadata.put("StudentName", certificate.getStudentName());
@@ -184,7 +185,6 @@ public class PdfGeneratorService {
         customMetadata.put("Algorithm", "SHA256withRSA");
         customMetadata.put("Hash", certificate.getDocumentHash());
         customMetadata.put("Signature", certificate.getDigitalSignature());
-        customMetadata.put("PublicKey", certificate.getPublicKey());
 
         // Adicionar metadados customizados
         for (Map.Entry<String, String> entry : customMetadata.entrySet()) {

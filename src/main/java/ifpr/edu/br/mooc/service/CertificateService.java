@@ -32,9 +32,6 @@ public class CertificateService {
     private final PdfGeneratorService pdfGeneratorService;
     private final CurrentUserService currentUserService;
 
-    @Value("${server.base-url:http://localhost:8080}")
-    private String baseUrl;
-
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     /**
@@ -141,9 +138,6 @@ public class CertificateService {
         // Assinar digitalmente
         String digitalSignature = cryptographyService.signHash(documentHash);
 
-        // Obter chave pública
-        String publicKey = cryptographyService.getPublicKeyAsString();
-
         // Criar registro do certificado
         Certificate certificate = Certificate.builder()
                 .enrollmentId(enrollment.getId())
@@ -156,7 +150,6 @@ public class CertificateService {
                 .completionDate(enrollment.getCompletedAt())
                 .documentHash(documentHash)
                 .digitalSignature(digitalSignature)
-                .publicKey(publicKey)
                 .build();
 
         Certificate savedCertificate = certificateRepository.save(certificate);

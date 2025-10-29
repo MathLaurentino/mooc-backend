@@ -4,6 +4,7 @@ import ifpr.edu.br.mooc.controller.CertificateController;
 import ifpr.edu.br.mooc.dto.certificate.CertificateValidationResponseDto;
 import ifpr.edu.br.mooc.dto.certificate.GenerateCertificateRequestDto;
 import ifpr.edu.br.mooc.dto.certificate.ValidateCertificateByCodeRequestDto;
+import ifpr.edu.br.mooc.exceptions.base.BadRequestException;
 import ifpr.edu.br.mooc.service.CertificateService;
 import ifpr.edu.br.mooc.service.CertificateValidationService;
 import jakarta.validation.Valid;
@@ -64,6 +65,19 @@ public class CertificateControllerImpl implements CertificateController {
     ) {
         log.info("Received request to validate certificate by code");
         CertificateValidationResponseDto response = validationService.validateByCode(dto.certificateCode());
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    @GetMapping("/validate/code/{code}")
+    public ResponseEntity<CertificateValidationResponseDto> validateByCode(
+            @PathVariable String code
+    ) {
+        if (code.isEmpty()) {
+            throw new BadRequestException("Código de validação vazio");
+        }
+        log.info("Received request to validate certificate by code");
+        CertificateValidationResponseDto response = validationService.validateByCode(code);
         return ResponseEntity.ok(response);
     }
 

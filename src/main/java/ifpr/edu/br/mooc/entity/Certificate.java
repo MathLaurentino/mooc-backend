@@ -53,9 +53,6 @@ public class Certificate {
     @Column(name = "assinatura_digital", nullable = false, length = 500)
     private String digitalSignature;
 
-    @Column(name = "chave_publica", nullable = false, length = 500)
-    private String publicKey;
-
     @Column(name = "criado_em", nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
