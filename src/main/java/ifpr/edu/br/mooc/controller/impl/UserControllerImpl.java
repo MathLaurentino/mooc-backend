@@ -66,6 +66,18 @@ public class UserControllerImpl implements UserController {
     }
 
     @Override
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserResponse> getCurrentUserData() {
+        Long userId = currentUserService.getCurrentUserId();
+        log.info("Received request to get user data for user id: {}", userId);
+
+        UserResponse response = userService.getCurrentUserData(userId);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PageResponse<UserListResponse>> getAllStudents(

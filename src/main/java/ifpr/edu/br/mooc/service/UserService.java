@@ -89,6 +89,14 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public UserResponse getCurrentUserData(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
+
+        return userMapper.toResponse(user);
+    }
+
+    @Transactional(readOnly = true)
     public PageResponse<UserListResponse> getAllStudents(
             UserSpecification spec,
             Pageable pageable

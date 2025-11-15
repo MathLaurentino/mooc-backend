@@ -14,6 +14,8 @@ public interface UserController {
 
     ResponseEntity<Long> countStudents();
 
+    ResponseEntity<UserResponse> getCurrentUserData();
+
     ResponseEntity<PageResponse<UserListResponse>> getAllStudents(
             String name,
             String email,
