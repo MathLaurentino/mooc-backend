@@ -1,16 +1,17 @@
 package ifpr.edu.br.mooc.controller.impl;
 
 import ifpr.edu.br.mooc.controller.UserController;
-import ifpr.edu.br.mooc.dto.user.CreateUserRequest;
-import ifpr.edu.br.mooc.dto.user.UpdateUserRequest;
-import ifpr.edu.br.mooc.dto.user.UpdateUserStatusRequest;
-import ifpr.edu.br.mooc.dto.user.UserResponse;
+import ifpr.edu.br.mooc.dto.pageable.PageResponse;
+import ifpr.edu.br.mooc.dto.user.*;
+import ifpr.edu.br.mooc.repository.specification.UserSpecification;
 import ifpr.edu.br.mooc.security.CurrentUserService;
 import ifpr.edu.br.mooc.security.JwtUtils;
 import ifpr.edu.br.mooc.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -62,5 +63,29 @@ public class UserControllerImpl implements UserController {
     public ResponseEntity<Long> countStudents() {
         Long count = userService.countStudents();
         return ResponseEntity.ok(count);
+    }
+
+    @Override
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PageResponse<UserListResponse>> getAllStudents(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "email", required = false) String email,
+            @RequestParam(value = "active", required = false) Boolean active,
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "10") Integer size,
+            @RequestParam(value = "direction", defaultValue = "asc") String direction
+    ) {
+        log.info("Received request to list students");
+
+        var sortDirection = "desc".equalsIgnoreCase(direction)
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+        var pageable = PageRequest.of(page, size, Sort.by(sortDirection, "id"));
+        var spec = new UserSpecification(name, email, active);
+
+        PageResponse<UserListResponse> response = userService.getAllStudents(spec, pageable);
+
+        return ResponseEntity.ok(response);
     }
 }

@@ -3,12 +3,13 @@ package ifpr.edu.br.mooc.repository;
 import ifpr.edu.br.mooc.entity.User;
 import ifpr.edu.br.mooc.entity.enums.UserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
     boolean existsByEmail(String email);
 

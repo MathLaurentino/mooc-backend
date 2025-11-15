@@ -1,9 +1,7 @@
 package ifpr.edu.br.mooc.controller;
 
-import ifpr.edu.br.mooc.dto.user.CreateUserRequest;
-import ifpr.edu.br.mooc.dto.user.UpdateUserRequest;
-import ifpr.edu.br.mooc.dto.user.UpdateUserStatusRequest;
-import ifpr.edu.br.mooc.dto.user.UserResponse;
+import ifpr.edu.br.mooc.dto.pageable.PageResponse;
+import ifpr.edu.br.mooc.dto.user.*;
 import org.springframework.http.ResponseEntity;
 
 public interface UserController {
@@ -15,4 +13,13 @@ public interface UserController {
     ResponseEntity<UserResponse> updateUserStatus(Long userId, UpdateUserStatusRequest request);
 
     ResponseEntity<Long> countStudents();
+
+    ResponseEntity<PageResponse<UserListResponse>> getAllStudents(
+            String name,
+            String email,
+            Boolean active,
+            Integer page,
+            Integer size,
+            String direction
+    );
 }

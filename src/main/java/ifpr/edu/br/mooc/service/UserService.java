@@ -1,9 +1,7 @@
 package ifpr.edu.br.mooc.service;
 
-import ifpr.edu.br.mooc.dto.user.CreateUserRequest;
-import ifpr.edu.br.mooc.dto.user.UpdateUserRequest;
-import ifpr.edu.br.mooc.dto.user.UpdateUserStatusRequest;
-import ifpr.edu.br.mooc.dto.user.UserResponse;
+import ifpr.edu.br.mooc.dto.pageable.PageResponse;
+import ifpr.edu.br.mooc.dto.user.*;
 import ifpr.edu.br.mooc.entity.User;
 import ifpr.edu.br.mooc.entity.enums.UserRole;
 import ifpr.edu.br.mooc.exceptions.base.BadRequestException;
@@ -12,8 +10,11 @@ import ifpr.edu.br.mooc.exceptions.user.DuplicateCpfException;
 import ifpr.edu.br.mooc.exceptions.user.DuplicateEmailException;
 import ifpr.edu.br.mooc.mapper.UserMapper;
 import ifpr.edu.br.mooc.repository.UserRepository;
+import ifpr.edu.br.mooc.repository.specification.UserSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -85,6 +86,18 @@ public class UserService {
     @Transactional(readOnly = true)
     public long countStudents() {
         return userRepository.countByUserRole(UserRole.STUDENT);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<UserListResponse> getAllStudents(
+            UserSpecification spec,
+            Pageable pageable
+    ) {
+        log.info("Fetching students with filters");
+
+        Page<User> usersPage = userRepository.findAll(spec, pageable);
+
+        return new PageResponse<>(usersPage.map(userMapper::toListResponse));
     }
 
     private void validateNewUser(CreateUserRequest request) {

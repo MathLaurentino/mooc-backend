@@ -2,6 +2,7 @@ package ifpr.edu.br.mooc.mapper;
 
 import ifpr.edu.br.mooc.dto.user.CreateUserRequest;
 import ifpr.edu.br.mooc.dto.user.UpdateUserRequest;
+import ifpr.edu.br.mooc.dto.user.UserListResponse;
 import ifpr.edu.br.mooc.dto.user.UserResponse;
 import ifpr.edu.br.mooc.entity.User;
 import org.mapstruct.Mapper;
@@ -24,6 +25,8 @@ public interface UserMapper {
     @Mapping(target = "userRole", ignore = true)
     @Mapping(target = "active", ignore = true)
     void updateEntityFromDto(UpdateUserRequest dto, @MappingTarget User user);
+
+    UserListResponse toListResponse(User user);
 
     UserResponse toResponse(User user);
 }
