@@ -7,6 +7,7 @@ import ifpr.edu.br.mooc.dto.pageable.PageResponse;
 import ifpr.edu.br.mooc.repository.specification.CampusSpecification;
 import ifpr.edu.br.mooc.service.CampusService;
 import jakarta.validation.Valid;
+import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -29,6 +30,17 @@ public class CampusControllerImpl implements CampusController {
             @RequestBody @Valid CampusReqDto dto
     ) {
         var response = service.createCampus(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Override
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<CampusResDto> updateCampus(
+            @PathVariable Long id,
+            @RequestBody @Valid CampusReqDto dto
+    ) {
+        var response = service.updateCampus(id, dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

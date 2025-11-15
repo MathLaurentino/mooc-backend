@@ -11,6 +11,11 @@ public interface CampusController {
             CampusReqDto dto
     );
 
+    ResponseEntity<CampusResDto> updateCampus(
+            Long id,
+            CampusReqDto dto
+    );
+
     ResponseEntity<PageResponse<CampusResDto>> getCampus(
             String name,
             Boolean visible,

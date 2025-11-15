@@ -4,6 +4,7 @@ import ifpr.edu.br.mooc.dto.knowledgeArea.KnowledgeAreaReqDto;
 import ifpr.edu.br.mooc.dto.knowledgeArea.KnowledgeAreaResDto;
 import ifpr.edu.br.mooc.dto.pageable.PageResponse;
 import ifpr.edu.br.mooc.entity.KnowledgeArea;
+import ifpr.edu.br.mooc.exceptions.base.NotFoundException;
 import ifpr.edu.br.mooc.exceptions.knowledgeArea.DuplicatedKnowledgeAreaNameException;
 import ifpr.edu.br.mooc.mapper.KnowledgeAreaMapper;
 import ifpr.edu.br.mooc.repository.KnowledgeAreaRepository;
@@ -30,6 +31,22 @@ public class KnowledgeAreaService {
         var createdKnowledgeArea = repository.save(mapper.toKnowledgeArea(dto));
 
         return mapper.toKnowledgeAreaResDto(createdKnowledgeArea);
+    }
+
+    public KnowledgeAreaResDto updateKnowledgeArea(Long id, KnowledgeAreaReqDto dto) {
+        KnowledgeArea knowledgeArea = repository.findById(id).orElseThrow(
+                () -> new NotFoundException("Área de conhecimento não encontrada!"));
+
+        if (!knowledgeArea.getName().equals(dto.name()) && repository.existsByName(dto.name())){
+            throw new DuplicatedKnowledgeAreaNameException(dto.name());
+        }
+
+        knowledgeArea.setName(dto.name());
+        knowledgeArea.setVisible(dto.visible());
+
+        var updatedKnowledgeArea = repository.save(knowledgeArea);
+
+        return mapper.toKnowledgeAreaResDto(updatedKnowledgeArea);
     }
 
     public PageResponse<KnowledgeAreaResDto> getKnowledgeAreas(

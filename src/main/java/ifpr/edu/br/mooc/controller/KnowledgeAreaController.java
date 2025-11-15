@@ -11,6 +11,11 @@ public interface KnowledgeAreaController {
             KnowledgeAreaReqDto dto
     );
 
+    ResponseEntity<KnowledgeAreaResDto> updateKnowledgeArea(
+            Long id,
+            KnowledgeAreaReqDto dto
+    );
+
     ResponseEntity<PageResponse<KnowledgeAreaResDto>> getKnowledgeAreas(
             String name,
             Boolean visible,
