@@ -3,6 +3,7 @@ package ifpr.edu.br.mooc.controller.impl;
 import ifpr.edu.br.mooc.controller.UserController;
 import ifpr.edu.br.mooc.dto.user.CreateUserRequest;
 import ifpr.edu.br.mooc.dto.user.UpdateUserRequest;
+import ifpr.edu.br.mooc.dto.user.UpdateUserStatusRequest;
 import ifpr.edu.br.mooc.dto.user.UserResponse;
 import ifpr.edu.br.mooc.security.CurrentUserService;
 import ifpr.edu.br.mooc.security.JwtUtils;
@@ -40,6 +41,18 @@ public class UserControllerImpl implements UserController {
         Long userId = currentUserService.getCurrentUserId();
         log.info("Received request to update user data for user id: {}", userId);
         UserResponse response = userService.updateCurrentUser(userId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    @PatchMapping("/{userId}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserResponse> updateUserStatus(
+            @PathVariable Long userId,
+            @Valid @RequestBody UpdateUserStatusRequest request
+    ) {
+        log.info("Received request to update user status for user id: {}", userId);
+        UserResponse response = userService.updateUserStatus(userId, request);
         return ResponseEntity.ok(response);
     }
 
