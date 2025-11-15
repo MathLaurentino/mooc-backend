@@ -1,11 +1,13 @@
 package ifpr.edu.br.mooc.mapper;
 
 import ifpr.edu.br.mooc.dto.user.CreateUserRequest;
+import ifpr.edu.br.mooc.dto.user.UpdateUserRequest;
 import ifpr.edu.br.mooc.dto.user.UserResponse;
 import ifpr.edu.br.mooc.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface UserMapper {
@@ -16,6 +18,12 @@ public interface UserMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "password", ignore = true) // Password will be encoded in service
     User toEntity(CreateUserRequest request);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "userRole", ignore = true)
+    @Mapping(target = "active", ignore = true)
+    void updateEntityFromDto(UpdateUserRequest dto, @MappingTarget User user);
 
     UserResponse toResponse(User user);
 }

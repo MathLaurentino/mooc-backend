@@ -1,6 +1,7 @@
 package ifpr.edu.br.mooc.service;
 
 import ifpr.edu.br.mooc.dto.user.CreateUserRequest;
+import ifpr.edu.br.mooc.dto.user.UpdateUserRequest;
 import ifpr.edu.br.mooc.dto.user.UserResponse;
 import ifpr.edu.br.mooc.entity.User;
 import ifpr.edu.br.mooc.entity.enums.UserRole;
@@ -52,6 +53,26 @@ public class UserService {
         return userRepository.countByUserRole(UserRole.STUDENT);
     }
 
+    @Transactional
+    public UserResponse updateCurrentUser(Long userId, UpdateUserRequest request) {
+        log.info("Updating user data for user id: {}", userId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
+
+        validateUpdateUser(user, request);
+
+        String cleanCpf = request.cpf().replaceAll("[^0-9]", "");
+
+        userMapper.updateEntityFromDto(request, user);
+        user.setCpf(cleanCpf);
+
+        User updatedUser = userRepository.save(user);
+        log.info("User updated successfully with id: {}", updatedUser.getId());
+
+        return userMapper.toResponse(updatedUser);
+    }
+
     private void validateNewUser(CreateUserRequest request) {
         // Clean CPF for validation
         String cleanCpf = request.cpf().replaceAll("[^0-9]", "");
@@ -67,8 +88,17 @@ public class UserService {
         }
     }
 
-    public User findByEmail(String email) {
-        return userRepository.findByEmailAndActiveTrue(email)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+    private void validateUpdateUser(User user, UpdateUserRequest request) {
+        String cleanCpf = request.cpf().replaceAll("[^0-9]", "");
+
+        if (!user.getEmail().equals(request.email())) {
+            userRepository.findByEmail(request.email())
+                    .ifPresent(existingUser -> { throw new DuplicateEmailException();});
+        }
+
+        if (!user.getCpf().equals(cleanCpf)) {
+            userRepository.findByCpf(cleanCpf)
+                    .ifPresent(existingUser -> {throw new DuplicateCpfException();});
+        }
     }
 }

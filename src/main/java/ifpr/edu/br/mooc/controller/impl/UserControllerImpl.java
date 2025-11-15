@@ -2,7 +2,10 @@ package ifpr.edu.br.mooc.controller.impl;
 
 import ifpr.edu.br.mooc.controller.UserController;
 import ifpr.edu.br.mooc.dto.user.CreateUserRequest;
+import ifpr.edu.br.mooc.dto.user.UpdateUserRequest;
 import ifpr.edu.br.mooc.dto.user.UserResponse;
+import ifpr.edu.br.mooc.security.CurrentUserService;
+import ifpr.edu.br.mooc.security.JwtUtils;
 import ifpr.edu.br.mooc.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +22,25 @@ import org.springframework.web.bind.annotation.*;
 public class UserControllerImpl implements UserController {
 
     private final UserService userService;
+    private final CurrentUserService currentUserService;
 
     @PostMapping("/register")
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
         log.info("Received request to create user with email: {}", request.email());
         UserResponse response = userService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Override
+    @PutMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserResponse> updateCurrentUser(
+            @Valid @RequestBody UpdateUserRequest request
+    ) {
+        Long userId = currentUserService.getCurrentUserId();
+        log.info("Received request to update user data for user id: {}", userId);
+        UserResponse response = userService.updateCurrentUser(userId, request);
+        return ResponseEntity.ok(response);
     }
 
     @Override
