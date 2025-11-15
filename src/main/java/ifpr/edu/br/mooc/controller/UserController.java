@@ -8,4 +8,5 @@ public interface UserController {
 
     ResponseEntity<UserResponse> createUser(CreateUserRequest request);
 
+    ResponseEntity<Long> countStudents();
 }
