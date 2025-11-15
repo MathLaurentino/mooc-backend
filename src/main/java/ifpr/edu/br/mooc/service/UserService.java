@@ -1,16 +1,20 @@
 package ifpr.edu.br.mooc.service;
 
-import ifpr.edu.br.mooc.dto.user.CreateUserRequest;
-import ifpr.edu.br.mooc.dto.user.UserResponse;
+import ifpr.edu.br.mooc.dto.pageable.PageResponse;
+import ifpr.edu.br.mooc.dto.user.*;
 import ifpr.edu.br.mooc.entity.User;
 import ifpr.edu.br.mooc.entity.enums.UserRole;
+import ifpr.edu.br.mooc.exceptions.base.BadRequestException;
 import ifpr.edu.br.mooc.exceptions.base.NotFoundException;
 import ifpr.edu.br.mooc.exceptions.user.DuplicateCpfException;
 import ifpr.edu.br.mooc.exceptions.user.DuplicateEmailException;
 import ifpr.edu.br.mooc.mapper.UserMapper;
 import ifpr.edu.br.mooc.repository.UserRepository;
+import ifpr.edu.br.mooc.repository.specification.UserSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,29 +31,81 @@ public class UserService {
     @Transactional
     public UserResponse createUser(CreateUserRequest request) {
         log.info("Creating new user with email: {}", request.email());
-        
-        // Validate business rules
+
         validateNewUser(request);
-        
-        // Clean CPF (remove formatting)
+
         String cleanCpf = request.cpf().replaceAll("[^0-9]", "");
-        
-        // Create user entity
+
         User user = userMapper.toEntity(request);
         user.setCpf(cleanCpf);
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setUserRole(UserRole.STUDENT);
-        
-        // Save user
+
         User savedUser = userRepository.save(user);
         log.info("User created successfully with id: {}", savedUser.getId());
         
         return userMapper.toResponse(savedUser);
     }
 
+    @Transactional
+    public UserResponse updateCurrentUser(Long userId, UpdateUserRequest request) {
+        log.info("Updating user data for user id: {}", userId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
+
+        validateUpdateUser(user, request);
+
+        String cleanCpf = request.cpf().replaceAll("[^0-9]", "");
+
+        userMapper.updateEntityFromDto(request, user);
+        user.setCpf(cleanCpf);
+
+        User updatedUser = userRepository.save(user);
+        log.info("User updated successfully with id: {}", updatedUser.getId());
+
+        return userMapper.toResponse(updatedUser);
+    }
+
+    @Transactional
+    public UserResponse updateUserStatus(Long userId, UpdateUserStatusRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
+
+        if (user.getUserRole() != UserRole.STUDENT) {
+            throw new BadRequestException("Apenas usuários com perfil de ALUNO podem ter o status alterado");
+        }
+
+        user.setActive(request.active());
+
+        User updatedUser = userRepository.save(user);
+        log.info("User status updated successfully. User id: {}, new status: {}", updatedUser.getId(), updatedUser.getActive());
+        return userMapper.toResponse(updatedUser);
+    }
+
     @Transactional(readOnly = true)
     public long countStudents() {
         return userRepository.countByUserRole(UserRole.STUDENT);
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponse getCurrentUserData(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
+
+        return userMapper.toResponse(user);
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<UserListResponse> getAllStudents(
+            UserSpecification spec,
+            Pageable pageable
+    ) {
+        log.info("Fetching students with filters");
+
+        Page<User> usersPage = userRepository.findAll(spec, pageable);
+
+        return new PageResponse<>(usersPage.map(userMapper::toListResponse));
     }
 
     private void validateNewUser(CreateUserRequest request) {
@@ -67,8 +123,17 @@ public class UserService {
         }
     }
 
-    public User findByEmail(String email) {
-        return userRepository.findByEmailAndActiveTrue(email)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+    private void validateUpdateUser(User user, UpdateUserRequest request) {
+        String cleanCpf = request.cpf().replaceAll("[^0-9]", "");
+
+        if (!user.getEmail().equals(request.email())) {
+            userRepository.findByEmail(request.email())
+                    .ifPresent(existingUser -> { throw new DuplicateEmailException();});
+        }
+
+        if (!user.getCpf().equals(cleanCpf)) {
+            userRepository.findByCpf(cleanCpf)
+                    .ifPresent(existingUser -> {throw new DuplicateCpfException();});
+        }
     }
 }
