@@ -4,6 +4,8 @@ import ifpr.edu.br.mooc.dto.campus.CampusReqDto;
 import ifpr.edu.br.mooc.dto.campus.CampusResDto;
 import ifpr.edu.br.mooc.dto.pageable.PageResponse;
 import ifpr.edu.br.mooc.entity.Campus;
+import ifpr.edu.br.mooc.exceptions.base.NotFoundException;
+import ifpr.edu.br.mooc.exceptions.campus.DuplicatedCampusNameException;
 import ifpr.edu.br.mooc.exceptions.knowledgeArea.DuplicatedKnowledgeAreaNameException;
 import ifpr.edu.br.mooc.mapper.CampusMapper;
 import ifpr.edu.br.mooc.repository.CampusRepository;
@@ -22,12 +24,26 @@ public class CampusService {
 
     public CampusResDto createCampus(CampusReqDto dto) {
         if (repository.existsByName(dto.name())){
-            throw new DuplicatedKnowledgeAreaNameException(dto.name());
+            throw new DuplicatedCampusNameException(dto.name());
         }
 
         var createdCampus = repository.save(mapper.toCampus(dto));
 
         return mapper.toCampusResDto(createdCampus);
+    }
+
+    public CampusResDto updateCampus(Long id, CampusReqDto dto) {
+        Campus campus = repository.findById(id).orElseThrow(
+                () -> new NotFoundException("Campi não encontrado!"));
+
+        if (!campus.getName().equals(dto.name()) && repository.existsByName(dto.name()))
+            throw new DuplicatedCampusNameException(dto.name());
+
+        campus.setName(dto.name());
+        campus.setVisible(dto.visible());
+
+        var updatedCampus = repository.save(campus);
+        return mapper.toCampusResDto(updatedCampus);
     }
 
     public PageResponse<CampusResDto> getCampus(

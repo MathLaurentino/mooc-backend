@@ -47,6 +47,11 @@ public class UserService {
         return userMapper.toResponse(savedUser);
     }
 
+    @Transactional(readOnly = true)
+    public long countStudents() {
+        return userRepository.countByUserRole(UserRole.STUDENT);
+    }
+
     private void validateNewUser(CreateUserRequest request) {
         // Clean CPF for validation
         String cleanCpf = request.cpf().replaceAll("[^0-9]", "");

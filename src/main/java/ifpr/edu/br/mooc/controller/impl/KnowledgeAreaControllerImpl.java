@@ -32,6 +32,17 @@ public class KnowledgeAreaControllerImpl implements KnowledgeAreaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @Override
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<KnowledgeAreaResDto> updateKnowledgeArea(
+            @PathVariable Long id,
+            @RequestBody @Valid KnowledgeAreaReqDto dto
+    ) {
+        var response = service.updateKnowledgeArea(id, dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
     @GetMapping
     public ResponseEntity<PageResponse<KnowledgeAreaResDto>> getKnowledgeAreas(
             @RequestParam(value = "name", required = false) String name,
