@@ -15,6 +15,8 @@ public interface EnrollmentController {
     ResponseEntity<PageResponse<MyCoursesResDto>> getMyCourses(
             String name,
             Boolean completed,
+            Long knowledgeAreaId,
+            Long campusId,
             Integer page,
             Integer size,
             String direction

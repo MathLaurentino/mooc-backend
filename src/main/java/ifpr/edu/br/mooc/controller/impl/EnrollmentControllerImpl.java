@@ -45,6 +45,8 @@ public class EnrollmentControllerImpl implements EnrollmentController {
     public ResponseEntity<PageResponse<MyCoursesResDto>> getMyCourses(
             @RequestParam(value = "nome", required = false) String name,
             @RequestParam(value = "concluido", required = false) Boolean completed,
+            @RequestParam(value = "knowledgeAreaId", required = false) Long knowledgeAreaId,
+            @RequestParam(value = "campusId", required = false) Long campusId,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "size", defaultValue = "8") Integer size,
             @RequestParam(value = "direction", defaultValue = "asc") String direction
@@ -53,7 +55,7 @@ public class EnrollmentControllerImpl implements EnrollmentController {
         var pageable = PageRequest.of(page, size, Sort.by(sortDirection, "id"));
 
         Long userId = currentUserService.getCurrentUserId();
-        var spec = new MyCourseSpecification(userId, name, completed);
+        var spec = new MyCourseSpecification(userId, name, completed, knowledgeAreaId, campusId);
 
         var response = enrollmentService.getMyCourses(spec, pageable);
         return ResponseEntity.ok(response);

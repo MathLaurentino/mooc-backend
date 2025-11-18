@@ -13,11 +13,15 @@ public class MyCourseSpecification implements Specification<Enrollment> {
     private final Long userId;
     private final String name;
     private final Boolean completed;
+    private final Long knowledgeAreaId;
+    private final Long campusId;
 
-    public MyCourseSpecification(Long userId, String name, Boolean completed) {
+    public MyCourseSpecification(Long userId, String name, Boolean completed, Long knowledgeAreaId, Long campusId) {
         this.userId = userId;
         this.name = name;
         this.completed = completed;
+        this.knowledgeAreaId = knowledgeAreaId;
+        this.campusId = campusId;
     }
 
     @Override
@@ -40,6 +44,14 @@ public class MyCourseSpecification implements Specification<Enrollment> {
                 predicates.add(cb.equal(root.get("completed"), true));
             else
                 predicates.add(cb.equal(root.get("completed"), false));
+        }
+
+        if (knowledgeAreaId != null) {
+            predicates.add(cb.equal(courseJoin.get("knowledgeAreaId"), knowledgeAreaId));
+        }
+
+        if (campusId != null) {
+            predicates.add(cb.equal(courseJoin.get("campusId"), campusId));
         }
 
         return cb.and(predicates.toArray(new Predicate[0]));
