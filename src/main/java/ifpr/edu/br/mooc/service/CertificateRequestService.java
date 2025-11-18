@@ -33,6 +33,7 @@ public class CertificateRequestService {
     private final CertificateRequestRepository certificateRequestRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final CertificateRequestMapper mapper;
+    private final AutoApproveConfigService autoApproveConfigService;
 
     @Transactional
     public CertificateRequestResDto createCertificateRequest(Long enrollmentId) {
@@ -49,15 +50,27 @@ public class CertificateRequestService {
             throw new ConflictException("Já existe uma solicitação de certificado para esta inscrição.");
         }
 
+        // Verifica se o modo de aprovação automática está ativo
+        boolean autoApproveEnabled = autoApproveConfigService.isAutoApproveEnabled();
+        CertificateRequestStatus initialStatus = autoApproveEnabled
+                ? CertificateRequestStatus.APPROVED
+                : CertificateRequestStatus.ANALYSIS;
+
         CertificateRequest request = CertificateRequest.builder()
                 .enrollmentId(enrollmentId)
                 .enrollment(enrollment)
-                .status(CertificateRequestStatus.ANALYSIS)
+                .status(initialStatus)
                 .build();
 
         CertificateRequest savedRequest = certificateRequestRepository.save(request);
 
-        log.info("Certificate request created successfully with id: {}", savedRequest.getId());
+        if (autoApproveEnabled) {
+            log.info("Certificate request created with AUTO-APPROVED status (auto-approve mode is ENABLED) - Request ID: {}",
+                    savedRequest.getId());
+        } else {
+            log.info("Certificate request created with ANALYSIS status (auto-approve mode is DISABLED) - Request ID: {}",
+                    savedRequest.getId());
+        }
 
         return mapper.toDto(savedRequest);
     }
@@ -153,5 +166,27 @@ public class CertificateRequestService {
     @Transactional(readOnly = true)
     public long countPendingRequests() {
         return certificateRequestRepository.countByStatus(CertificateRequestStatus.ANALYSIS);
+    }
+
+    @Transactional
+    public void autoApproveAllPendingRequests() {
+        log.info("Auto-approving all pending certificate requests");
+
+        List<CertificateRequest> pendingRequests = certificateRequestRepository
+                .findByStatus(CertificateRequestStatus.ANALYSIS);
+
+        if (pendingRequests.isEmpty()) {
+            log.info("No pending requests to auto-approve");
+            return;
+        }
+
+        pendingRequests.forEach(request -> {
+            request.setStatus(CertificateRequestStatus.APPROVED);
+            log.debug("Auto-approving certificate request: {}", request.getId());
+        });
+
+        certificateRequestRepository.saveAll(pendingRequests);
+
+        log.info("Auto-approved {} certificate requests", pendingRequests.size());
     }
 }

@@ -5,6 +5,7 @@ import ifpr.edu.br.mooc.entity.enums.CertificateRequestStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface CertificateRequestRepository extends JpaRepository<CertificateRequest, String>, JpaSpecificationExecutor<CertificateRequest> {
@@ -14,4 +15,6 @@ public interface CertificateRequestRepository extends JpaRepository<CertificateR
     Optional<CertificateRequest> findByEnrollmentId(Long enrollmentId);
 
     long countByStatus(CertificateRequestStatus status);
+
+    List<CertificateRequest> findByStatus(CertificateRequestStatus status);
 }
