@@ -234,7 +234,7 @@ public class CourseService {
      * Gera URL da thumbnail com parâmetro de versão para invalidar cache do navegador
      * O parâmetro v é baseado no timestamp de última atualização do curso
      */
-    private String generateThumbnailUrl(Long courseId) {
+    public String generateThumbnailUrl(Long courseId) {
         Course course = courseRepository.findById(courseId).orElse(null);
         if (course == null || course.getUpdatedAt() == null) {
             return String.format("%s/mooc/courses/%d/thumbnail", baseUrl, courseId);

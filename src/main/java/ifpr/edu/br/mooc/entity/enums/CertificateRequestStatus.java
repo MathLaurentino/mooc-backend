@@ -19,7 +19,7 @@ public enum CertificateRequestStatus {
         }
 
         for (CertificateRequestStatus status : CertificateRequestStatus.values()) {
-            if (status.code.equalsIgnoreCase(code)) {
+            if (status.code.equalsIgnoreCase(code) || status.description.equalsIgnoreCase(code)) {
                 return status;
             }
         }
