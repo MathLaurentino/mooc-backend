@@ -27,7 +27,7 @@ public class CertificateRequest {
     @Column(name = "inscricao_id", nullable = false)
     private Long enrollmentId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "inscricao_id", insertable = false, updatable = false)
     private Enrollment enrollment;
 

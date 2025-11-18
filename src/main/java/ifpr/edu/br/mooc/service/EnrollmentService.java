@@ -1,9 +1,11 @@
 package ifpr.edu.br.mooc.service;
 
+import ifpr.edu.br.mooc.dto.enrollment.CompletedCoursesResDto;
 import ifpr.edu.br.mooc.dto.enrollment.EnrollmentDTO;
 import ifpr.edu.br.mooc.dto.enrollment.EnrollmentRequestDTO;
 import ifpr.edu.br.mooc.dto.enrollment.MyCoursesResDto;
 import ifpr.edu.br.mooc.dto.pageable.PageResponse;
+import ifpr.edu.br.mooc.entity.CertificateRequest;
 import ifpr.edu.br.mooc.entity.Course;
 import ifpr.edu.br.mooc.entity.Enrollment;
 import ifpr.edu.br.mooc.entity.User;
@@ -11,9 +13,11 @@ import ifpr.edu.br.mooc.exceptions.base.NotFoundException;
 import ifpr.edu.br.mooc.exceptions.enrollment.EnrollmentAlreadyExistsException;
 import ifpr.edu.br.mooc.exceptions.user.UserNotActiveException;
 import ifpr.edu.br.mooc.mapper.EnrollmentMapper;
+import ifpr.edu.br.mooc.repository.CertificateRequestRepository;
 import ifpr.edu.br.mooc.repository.CourseRepository;
 import ifpr.edu.br.mooc.repository.EnrollmentRepository;
 import ifpr.edu.br.mooc.repository.UserRepository;
+import ifpr.edu.br.mooc.repository.specification.CompletedCoursesSpecification;
 import ifpr.edu.br.mooc.repository.specification.MyCourseSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,9 +33,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EnrollmentService {
 
+    private final CourseService courseService;
     private final EnrollmentRepository enrollmentRepository;
     private final UserRepository userRepository;
     private final CourseRepository courseRepository;
+    private final CertificateRequestRepository certificateRequestRepository;
     private final EnrollmentMapper mapper;
 
     @Value("${server.base-url:http://localhost:8080}")
@@ -72,7 +78,7 @@ public class EnrollmentService {
                 .map(enrollment -> {
                     MyCoursesResDto dto = mapper.toMyCoursesResDto(enrollment);
 
-                    String thumbnailUrl = generateThumbnailUrl(enrollment.getCourse());
+                    String thumbnailUrl = courseService.generateThumbnailUrl(enrollment.getCourse().getId());
 
                     return new MyCoursesResDto(
                             dto.enrollmentId(),
@@ -99,21 +105,45 @@ public class EnrollmentService {
         );
     }
 
-    /**
-     * Gera URL da thumbnail com parâmetro de versão para invalidar cache do navegador
-     */
-    private String generateThumbnailUrl(Course course) {
-        if (course == null || course.getThumbnail() == null || course.getThumbnail().isBlank()) {
-            return null;
-        }
+    @Transactional(readOnly = true)
+    public PageResponse<CompletedCoursesResDto> getCoursesWithCertificateStatus(
+            CompletedCoursesSpecification spec,
+            Pageable pageable
+    ) {
+        Page<Enrollment> enrollments = enrollmentRepository.findAll(spec, pageable);
 
-        if (course.getUpdatedAt() == null) {
-            return String.format("%s/mooc/courses/%d/thumbnail", baseUrl, course.getId());
-        }
+        Page<CompletedCoursesResDto> completedCoursesPage = enrollments.map(enrollment -> {
+            // Busca a solicitação de certificado
+            CertificateRequest certificateRequest = certificateRequestRepository
+                    .findByEnrollmentId(enrollment.getId())
+                    .orElse(null);
 
-        // Usa o timestamp de atualização para invalidar cache
-        long version = course.getUpdatedAt().toEpochSecond(java.time.ZoneOffset.UTC);
-        return String.format("%s/mooc/courses/%d/thumbnail?v=%d", baseUrl, course.getId(), version);
+            // Extrai informações do certificado
+            String certificateStatus = certificateRequest != null
+                    ? certificateRequest.getStatus().getCode()
+                    : null;
+            String certificateStatusDescription = certificateRequest != null
+                    ? certificateRequest.getStatus().getDescription()
+                    : null;
+            String certificateRequestId = certificateRequest != null
+                    ? certificateRequest.getId()
+                    : null;
+
+            // Gera URL da thumbnail
+            String thumbnailUrl = enrollment.getCourse().getThumbnail() != null
+                    ? courseService.generateThumbnailUrl(enrollment.getCourse().getId())
+                    : null;
+
+            return mapper.toCompletedCoursesResDto(
+                    enrollment,
+                    certificateStatus,
+                    certificateStatusDescription,
+                    certificateRequestId,
+                    thumbnailUrl
+            );
+        });
+
+        return new PageResponse<>(completedCoursesPage);
     }
 
 }

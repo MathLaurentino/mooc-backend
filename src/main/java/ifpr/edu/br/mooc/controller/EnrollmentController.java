@@ -1,5 +1,6 @@
 package ifpr.edu.br.mooc.controller;
 
+import ifpr.edu.br.mooc.dto.enrollment.CompletedCoursesResDto;
 import ifpr.edu.br.mooc.dto.enrollment.EnrollmentDTO;
 import ifpr.edu.br.mooc.dto.enrollment.EnrollmentRequestDTO;
 import ifpr.edu.br.mooc.dto.enrollment.MyCoursesResDto;
@@ -26,6 +27,16 @@ public interface EnrollmentController {
             Long enrollmentId,
             Long lessonId,
             ReqLessonProgressDTO dto
+    );
+
+    ResponseEntity<PageResponse<CompletedCoursesResDto>> getCoursesWithCertificateStatus(
+            String courseName,
+            Long knowledgeAreaId,
+            Long campusId,
+            String status,
+            Integer page,
+            Integer size,
+            String direction
     );
 
 }

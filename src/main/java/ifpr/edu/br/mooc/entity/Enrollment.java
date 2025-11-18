@@ -35,6 +35,9 @@ public class Enrollment {
     @JoinColumn(name = "curso_id", insertable = false, updatable = false)
     private Course course;
 
+    @OneToOne(mappedBy = "enrollment", fetch = FetchType.LAZY)
+    private CertificateRequest certificateRequest;
+
     @Column(name = "concluido", nullable = false)
     @Builder.Default
     private Boolean completed = false;

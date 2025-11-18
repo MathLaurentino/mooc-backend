@@ -1,5 +1,6 @@
 package ifpr.edu.br.mooc.mapper;
 
+import ifpr.edu.br.mooc.dto.enrollment.CompletedCoursesResDto;
 import ifpr.edu.br.mooc.dto.enrollment.EnrollmentDTO;
 import ifpr.edu.br.mooc.dto.enrollment.EnrollmentRequestDTO;
 import ifpr.edu.br.mooc.dto.enrollment.MyCoursesResDto;
@@ -40,5 +41,25 @@ public interface EnrollmentMapper {
     @Mapping(target = "areaConhecimento.id", source = "course.knowledgeArea.id")
     @Mapping(target = "areaConhecimento.nome", source = "course.knowledgeArea.name")
     MyCoursesResDto toMyCoursesResDto(Enrollment enrollment);
+
+    @Mapping(target = "enrollmentId", source = "enrollment.id")
+    @Mapping(target = "cursoId", source = "enrollment.course.id")
+    @Mapping(target = "nome", source = "enrollment.course.name")
+    @Mapping(target = "minuatura", source = "thumbnailUrl")
+    @Mapping(target = "cargaHoraria", source = "enrollment.course.workload")
+    @Mapping(target = "statusCertificado", expression = "java(certificateStatus)")
+    @Mapping(target = "statusCertificadoDescricao", expression = "java(certificateStatusDescription)")
+    @Mapping(target = "soliciftacaoCertificadoId", expression = "java(certificateRequestId)")
+    @Mapping(target = "campus.id", source = "enrollment.course.campus.id")
+    @Mapping(target = "campus.nome", source = "enrollment.course.campus.name")
+    @Mapping(target = "areaConhecimento.id", source = "enrollment.course.knowledgeArea.id")
+    @Mapping(target = "areaConhecimento.nome", source = "enrollment.course.knowledgeArea.name")
+    CompletedCoursesResDto toCompletedCoursesResDto(
+            Enrollment enrollment,
+            String certificateStatus,
+            String certificateStatusDescription,
+            String certificateRequestId,
+            String thumbnailUrl
+    );
 
 }
