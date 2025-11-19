@@ -65,4 +65,9 @@ public interface CourseController {
             LessonReorderReqDto dto
     );
 
+    ResponseEntity<Void> deleteLesson(
+            Long courseId,
+            Long lessonId
+    );
+
 }

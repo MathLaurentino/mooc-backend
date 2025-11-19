@@ -6,8 +6,10 @@ import ifpr.edu.br.mooc.exceptions.base.BadRequestException;
 import ifpr.edu.br.mooc.exceptions.base.NotFoundException;
 import ifpr.edu.br.mooc.mapper.LessonMapper;
 import ifpr.edu.br.mooc.repository.CourseRepository;
+import ifpr.edu.br.mooc.repository.LessonProgressRepository;
 import ifpr.edu.br.mooc.repository.LessonRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,10 +19,12 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class LessonService {
 
     private final LessonRepository lessonRepository;
     private final CourseRepository courseRepository;
+    private final LessonProgressRepository lessonProgressRepository;
     private final LessonMapper mapper;
 
     public LessonDetailResDto createLesson(LessonCreateReqDto dto, Long courseId) {
@@ -160,5 +164,33 @@ public class LessonService {
 
         // 11. Salvar todas as aulas atualizadas
         lessonRepository.saveAll(lessons);
+    }
+
+    @Transactional
+    public void deleteLesson(Long courseId, Long lessonId) {
+        log.info("Deleting lesson {} from course {}", lessonId, courseId);
+
+        courseRepository.findById(courseId).orElseThrow(
+                () -> new NotFoundException("Curso não encontrado."));
+
+        Lesson lesson = lessonRepository.findById(lessonId).orElseThrow(
+                () -> new NotFoundException("Aula não encontrada."));
+
+        if (!lesson.getCourseId().equals(courseId)) {
+            throw new NotFoundException("Aula não encontrada.");
+        }
+
+        Integer deletedOrder = lesson.getLessonOrder();
+
+        log.info("Deleting all lesson progress for lesson {}", lessonId);
+        lessonProgressRepository.deleteByLessonId(lessonId);
+
+        log.info("Deleting lesson {}", lessonId);
+        lessonRepository.delete(lesson);
+
+        log.info("Decrementing lesson orders after order {}", deletedOrder);
+        lessonRepository.decrementLessonOrdersAfter(courseId, deletedOrder);
+
+        log.info("Lesson {} deleted successfully", lessonId);
     }
 }

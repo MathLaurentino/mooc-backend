@@ -2,6 +2,7 @@ package ifpr.edu.br.mooc.repository;
 
 import ifpr.edu.br.mooc.entity.Lesson;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -14,5 +15,9 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     Optional<Integer> findMaxLessonOrderByCourseId(@Param("courseId") Long courseId);
 
     List<Lesson> findByCourseIdOrderByLessonOrderAsc(Long courseId);
+
+    @Modifying
+    @Query("UPDATE Lesson l SET l.lessonOrder = l.lessonOrder - 1 WHERE l.courseId = :courseId AND l.lessonOrder > :deletedOrder")
+    void decrementLessonOrdersAfter(@Param("courseId") Long courseId, @Param("deletedOrder") Integer deletedOrder);
 
 }

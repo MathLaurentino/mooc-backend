@@ -6,6 +6,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "aula")
@@ -15,7 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
-@ToString(exclude = "course")
+@ToString(exclude = {"course", "lessonProgresses"})
 public class Lesson {
 
     @Id
@@ -28,6 +30,10 @@ public class Lesson {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "curso_id", insertable = false, updatable = false)
     private Course course;
+
+    @OneToMany(mappedBy = "lesson", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @Builder.Default
+    private List<LessonProgress> lessonProgresses = new ArrayList<>();
 
     @Column(name = "titulo", nullable = false, length = 100)
     private String title;

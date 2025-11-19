@@ -180,4 +180,15 @@ public class CourseControllerImpl implements CourseController {
         return ResponseEntity.ok(response);
     }
 
+    @Override
+    @DeleteMapping("/{courseId}/lessons/{lessonId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteLesson(
+            @PathVariable Long courseId,
+            @PathVariable Long lessonId
+    ) {
+        lessonService.deleteLesson(courseId, lessonId);
+        return ResponseEntity.noContent().build();
+    }
+
 }
