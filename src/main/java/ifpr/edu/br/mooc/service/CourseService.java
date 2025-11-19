@@ -7,12 +7,14 @@ import ifpr.edu.br.mooc.entity.Enrollment;
 import ifpr.edu.br.mooc.entity.Lesson;
 import ifpr.edu.br.mooc.entity.LessonProgress;
 import ifpr.edu.br.mooc.exceptions.base.NotFoundException;
+import ifpr.edu.br.mooc.exceptions.base.UnauthorizedException;
 import ifpr.edu.br.mooc.mapper.CourseMapper;
 import ifpr.edu.br.mooc.mapper.LessonMapper;
 import ifpr.edu.br.mooc.repository.*;
 import ifpr.edu.br.mooc.repository.specification.CourseSpecification;
 import ifpr.edu.br.mooc.security.CurrentUserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -24,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CourseService {
@@ -115,6 +118,9 @@ public class CourseService {
         Course course = courseRepository.findByIdWithLessons(id).orElseThrow(
                 () -> new NotFoundException("Curso não encontrado."));
 
+        // Validar acesso ao curso invisível
+        validateCourseAccess(course);
+
         // Buscar informações de inscrição (se o usuário estiver logado)
         CourseWithLessonsResDto.InscricaoInfoDto enrollmentInfo = getEnrollmentInfo(id);
 
@@ -197,6 +203,42 @@ public class CourseService {
                     ));
         } catch (Exception e) {
             return Map.of();
+        }
+    }
+
+    /**
+     * Valida se o usuário tem permissão para acessar um curso invisível
+     */
+    private void validateCourseAccess(Course course) {
+        // Se o curso está visível, qualquer um pode acessar
+        if (course.getVisible()) {
+            return;
+        }
+
+        // Curso invisível - verificar permissões
+        try {
+            Long userId = currentUserService.getCurrentUserId();
+
+            // Verificar se é admin
+            if (currentUserService.isCurrentUserAdmin()) {
+                log.info("Admin user accessing invisible course: {}", course.getId());
+                return;
+            }
+
+            // Verificar se o aluno está inscrito no curso
+            Optional<Enrollment> enrollmentOpt = enrollmentRepository
+                    .findByUserIdAndCourseId(userId, course.getId());
+
+            if (enrollmentOpt.isEmpty()) {
+                // Usuário logado mas não inscrito em curso invisível
+                throw new NotFoundException("Curso não encontrado.");
+            }
+
+            log.info("Enrolled student accessing invisible course: {}", course.getId());
+
+        } catch (UnauthorizedException e) {
+            // Usuário não logado tentando acessar curso invisível
+            throw new NotFoundException("Curso não encontrado.");
         }
     }
 

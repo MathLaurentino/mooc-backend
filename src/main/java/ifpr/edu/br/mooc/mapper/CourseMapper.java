@@ -67,6 +67,7 @@ public interface CourseMapper {
     @Mapping(target = "nome", source = "course.name")
     @Mapping(target = "nomeProfessor", source = "course.professorName")
     @Mapping(target = "miniatura", source = "thumbnailUrl")
+    @Mapping(target = "visivel", source = "course.visible")
     @Mapping(target = "cargaHoraria", source = "course.workload")
     @Mapping(target = "campus.id", source = "course.campus.id")
     @Mapping(target = "campus.nome", source = "course.campus.name")

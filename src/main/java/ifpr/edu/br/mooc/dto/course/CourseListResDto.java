@@ -6,6 +6,7 @@ public record CourseListResDto(
         String nomeProfessor,
         String miniatura,
         Integer cargaHoraria,
+        Boolean visivel,
         CampusDto campus,
         AreaConhecimentoDto areaConhecimento,
         Long enrollmentId

@@ -1,26 +1,38 @@
 package ifpr.edu.br.mooc.service;
 
 import ifpr.edu.br.mooc.dto.lesson.*;
+import ifpr.edu.br.mooc.entity.Course;
+import ifpr.edu.br.mooc.entity.Enrollment;
 import ifpr.edu.br.mooc.entity.Lesson;
 import ifpr.edu.br.mooc.exceptions.base.BadRequestException;
 import ifpr.edu.br.mooc.exceptions.base.NotFoundException;
+import ifpr.edu.br.mooc.exceptions.base.UnauthorizedException;
 import ifpr.edu.br.mooc.mapper.LessonMapper;
 import ifpr.edu.br.mooc.repository.CourseRepository;
+import ifpr.edu.br.mooc.repository.EnrollmentRepository;
+import ifpr.edu.br.mooc.repository.LessonProgressRepository;
 import ifpr.edu.br.mooc.repository.LessonRepository;
+import ifpr.edu.br.mooc.security.CurrentUserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class LessonService {
 
     private final LessonRepository lessonRepository;
     private final CourseRepository courseRepository;
+    private final EnrollmentRepository enrollmentRepository;
+    private final LessonProgressRepository lessonProgressRepository;
+    private final CurrentUserService currentUserService;
     private final LessonMapper mapper;
 
     public LessonDetailResDto createLesson(LessonCreateReqDto dto, Long courseId) {
@@ -52,7 +64,13 @@ public class LessonService {
         return mapper.toLessonDetailResDto(savedLesson);
     }
 
+    @Transactional(readOnly = true)
     public LessonDetailResDto getLessonById(Long courseId, Long lessonId) {
+        Course course = courseRepository.findById(courseId).orElseThrow(
+                () -> new NotFoundException("Curso não encontrado."));
+
+        validateCourseAccess(course);
+
         Lesson lesson = lessonRepository.findById(lessonId).orElseThrow(
                 () -> new NotFoundException("Aula não encontrada."));
 
@@ -62,9 +80,12 @@ public class LessonService {
         return mapper.toLessonDetailResDto(lesson);
     }
 
+    @Transactional(readOnly = true)
     public List<LessonListResDto> getLessonByCourse(Long courseId) {
-        courseRepository.findById(courseId).orElseThrow(
+        Course course = courseRepository.findById(courseId).orElseThrow(
                 () -> new NotFoundException("Curso não encontrado."));
+
+        validateCourseAccess(course);
 
         List<Lesson> lessons = lessonRepository.findByCourseIdOrderByLessonOrderAsc(courseId);
 
@@ -160,5 +181,73 @@ public class LessonService {
 
         // 11. Salvar todas as aulas atualizadas
         lessonRepository.saveAll(lessons);
+    }
+
+    @Transactional
+    public void deleteLesson(Long courseId, Long lessonId) {
+        log.info("Deleting lesson {} from course {}", lessonId, courseId);
+
+        courseRepository.findById(courseId).orElseThrow(
+                () -> new NotFoundException("Curso não encontrado."));
+
+        Lesson lesson = lessonRepository.findById(lessonId).orElseThrow(
+                () -> new NotFoundException("Aula não encontrada."));
+
+        if (!lesson.getCourseId().equals(courseId)) {
+            throw new NotFoundException("Aula não encontrada.");
+        }
+
+        Integer deletedOrder = lesson.getLessonOrder();
+
+        log.info("Deleting all lesson progress for lesson {}", lessonId);
+        lessonProgressRepository.deleteByLessonId(lessonId);
+
+        log.info("Deleting lesson {}", lessonId);
+        lessonRepository.delete(lesson);
+
+        log.info("Decrementing lesson orders after order {}", deletedOrder);
+        lessonRepository.decrementLessonOrdersAfter(courseId, deletedOrder);
+
+        log.info("Lesson {} deleted successfully", lessonId);
+    }
+
+    /**
+     * Valida se o usuário tem permissão para acessar um curso invisível
+     * Mesma lógica utilizada no CourseService
+     */
+    private void validateCourseAccess(Course course) {
+        // Se o curso está visível, qualquer um pode acessar
+        if (course.getVisible()) {
+            return;
+        }
+
+        // Curso invisível - verificar permissões
+        try {
+            Long userId = currentUserService.getCurrentUserId();
+
+            // Verificar se é admin
+            if (currentUserService.isCurrentUserAdmin()) {
+                log.info("Admin user accessing lessons from invisible course: {}", course.getId());
+                return;
+            }
+
+            // Verificar se o aluno está inscrito no curso
+            Optional<Enrollment> enrollmentOpt = enrollmentRepository
+                    .findByUserIdAndCourseId(userId, course.getId());
+
+            if (enrollmentOpt.isEmpty()) {
+                // Usuário logado mas não inscrito em curso invisível
+                log.warn("User {} attempted to access lessons from invisible course {} without enrollment",
+                        userId, course.getId());
+                throw new NotFoundException("Curso não encontrado.");
+            }
+
+            log.info("Enrolled student {} accessing lessons from invisible course: {}", userId, course.getId());
+
+        } catch (UnauthorizedException e) {
+            // Usuário não logado tentando acessar curso invisível
+            log.warn("Unauthenticated user attempted to access lessons from invisible course: {}", course.getId());
+            throw new NotFoundException("Curso não encontrado.");
+        }
     }
 }

@@ -10,28 +10,28 @@ collection:
     meta:
       id: fld_118125d5c8e54675bf79f732e7ac6c23
       created: 1757873464535
-      modified: 1761696818727
-      sortKey: -1761096118049
+      modified: 1763517536611
+      sortKey: -1762471840810.5
       description: ""
     children:
       - url: "{{ _.baseURl }}/users/register"
-        name: Criar Usuario
+        name: Criar Usuario (TODOS)
         meta:
           id: req_c089cabde813459596870b550e69472c
           created: 1757808939729
-          modified: 1761097102110
+          modified: 1763244054537
           isPrivate: false
           description: ""
-          sortKey: -1757873468117
+          sortKey: -1759090531391
         method: POST
         body:
           mimeType: application/json
           text: |-
             {
             	"fullName": "Matheus Laurentino",
-            	"cpf": "07894971405",
+            	"cpf": "41156946026",
             	"birthDate": "2003-11-29",
-            	"email": "matheus@gmail.com",
+            	"email": "matheus2@gmail.com",
             	"password": "Senha123"
             }
         headers:
@@ -48,11 +48,11 @@ collection:
             store: true
           rebuildPath: true
       - url: "{{ _.baseURl }}/auth/login"
-        name: Login
+        name: Login (TODOS)
         meta:
           id: req_02f70b4f8d33423ba4884c5cefdea672
           created: 1757873476510
-          modified: 1761696817706
+          modified: 1763517533924
           isPrivate: false
           description: ""
           sortKey: -1759091090555
@@ -61,7 +61,7 @@ collection:
           mimeType: application/json
           text: |-
             {
-            	"email": "estudante@mooc.ifpr.edu.br",
+            	"email": "admin@mooc.ifpr.edu.br",
             	"password": "senha"
             }
         headers:
@@ -78,12 +78,12 @@ collection:
 
             try {
               const responseBody = JSON.parse(response.getBody())
-              
+            
               // Verifica se o login foi bem-sucedido (status 200)
               if (response.getStatusCode() === 200) {
-                
+            
                 let jwtToken = null;
-                
+            
                 // Tenta encontrar o token nas estruturas mais comuns
                 if (insomnia.response.text().access_token) {
                   jwtToken = insomnia.response.text().access_token;
@@ -97,25 +97,358 @@ collection:
                 else if (insomnia.response.text().data && insomnia.response.text().data.access_token) {
                   jwtToken = insomnia.response.text().data.access_token;
                 }
-                
+            
                 if (jwtToken) {
                   // Salva no ambiente global
                   insomnia.environment.set('jwt_token', jwtToken);
                   insomnia.environment.set('authorization_header', `Bearer ${jwtToken}`);
-                  
+            
                   console.log('✅ JWT Token capturado e salvo!');
                   console.log('Token:', jwtToken.substring(0, 30) + '...');
-                  
+            
                 } else {
                   console.log('❌ JWT Token não encontrado no response');
                   console.log('Response completo:', JSON.stringify(insomnia.response.text(), null, 2));
                 }
-                
+            
               } else {
                 console.log('❌ Login falhou, status:', response.getStatusCode());
               }
+            
+            
+            } catch (error) {
+              console.log('❌ Erro ao processar response:', error.message);
+            }
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl }}/users/count/students"
+        name: Quantidade de Alunos Cadastrados (ADM)
+        meta:
+          id: req_77c2eefbbb1d4a658f1ed11ad1d51e46
+          created: 1763238175601
+          modified: 1763238250855
+          isPrivate: false
+          description: ""
+          sortKey: -1759089972227
+        method: GET
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"email": "estudante@mooc.ifpr.edu.br",
+            	"password": "senha"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.0
+        authentication:
+          type: bearer
+          prefix: "Bearer "
+          token: "{{ _.jwt_token }}"
+        scripts:
+          afterResponse: >-
+            // Script para a aba Tests do request de login
 
-              
+            const response = insomnia.response;
+
+
+            try {
+              const responseBody = JSON.parse(response.getBody())
+            
+              // Verifica se o login foi bem-sucedido (status 200)
+              if (response.getStatusCode() === 200) {
+            
+                let jwtToken = null;
+            
+                // Tenta encontrar o token nas estruturas mais comuns
+                if (insomnia.response.text().access_token) {
+                  jwtToken = insomnia.response.text().access_token;
+                }
+                else if (insomnia.response.text().token) {
+                  jwtToken = insomnia.response.text().token;
+                }
+                else if (insomnia.response.text().data && insomnia.response.text().data.token) {
+                  jwtToken = insomnia.response.text().data.token;
+                }
+                else if (insomnia.response.text().data && insomnia.response.text().data.access_token) {
+                  jwtToken = insomnia.response.text().data.access_token;
+                }
+            
+                if (jwtToken) {
+                  // Salva no ambiente global
+                  insomnia.environment.set('jwt_token', jwtToken);
+                  insomnia.environment.set('authorization_header', `Bearer ${jwtToken}`);
+            
+                  console.log('✅ JWT Token capturado e salvo!');
+                  console.log('Token:', jwtToken.substring(0, 30) + '...');
+            
+                } else {
+                  console.log('❌ JWT Token não encontrado no response');
+                  console.log('Response completo:', JSON.stringify(insomnia.response.text(), null, 2));
+                }
+            
+              } else {
+                console.log('❌ Login falhou, status:', response.getStatusCode());
+              }
+            
+            
+            } catch (error) {
+              console.log('❌ Erro ao processar response:', error.message);
+            }
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl }}/users/me"
+        name: Atualizar Dados Pessoais (LOGADOS)
+        meta:
+          id: req_b9c368d384124c0eb96f01227d578347
+          created: 1763241745188
+          modified: 1763242935798
+          isPrivate: false
+          description: ""
+          sortKey: -1745091833263.5
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"fullName": "Matheus Laurentino Alves",
+            	"cpf": "07894971405",
+            	"birthDate": "2003-11-20",
+            	"email": "matheus3@gmail.com"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/10.3.1
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl }}/users/4/status"
+        name: Atualizar Status de Ativo de Aluno (ADM)
+        meta:
+          id: req_7bae6428384a481e8f5b93dfc47a497e
+          created: 1763242952929
+          modified: 1763244039711
+          isPrivate: false
+          description: ""
+          sortKey: -1759089273272
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"active": "true"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/10.3.1
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl }}/users"
+        name: Buscar Alunos Cadastrados (ADM)
+        meta:
+          id: req_2026c3230ab34b34b867ec848338655a
+          created: 1763243628071
+          modified: 1763243782166
+          isPrivate: false
+          description: ""
+          sortKey: -1759089413063
+        method: GET
+        parameters:
+          - name: name
+            value: ""
+          - name: email
+            value: ""
+          - name: active
+            value: ""
+          - name: page
+            value: ""
+          - name: size
+            value: ""
+          - name: direction
+            value: ""
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.0
+        authentication:
+          type: bearer
+          prefix: "Bearer "
+          token: "{{ _.jwt_token }}"
+          disabled: false
+        scripts:
+          afterResponse: >-
+            // Script para a aba Tests do request de login
+
+            const response = insomnia.response;
+
+
+            try {
+              const responseBody = JSON.parse(response.getBody())
+            
+              // Verifica se o login foi bem-sucedido (status 200)
+              if (response.getStatusCode() === 200) {
+            
+                let jwtToken = null;
+            
+                // Tenta encontrar o token nas estruturas mais comuns
+                if (insomnia.response.text().access_token) {
+                  jwtToken = insomnia.response.text().access_token;
+                }
+                else if (insomnia.response.text().token) {
+                  jwtToken = insomnia.response.text().token;
+                }
+                else if (insomnia.response.text().data && insomnia.response.text().data.token) {
+                  jwtToken = insomnia.response.text().data.token;
+                }
+                else if (insomnia.response.text().data && insomnia.response.text().data.access_token) {
+                  jwtToken = insomnia.response.text().data.access_token;
+                }
+            
+                if (jwtToken) {
+                  // Salva no ambiente global
+                  insomnia.environment.set('jwt_token', jwtToken);
+                  insomnia.environment.set('authorization_header', `Bearer ${jwtToken}`);
+            
+                  console.log('✅ JWT Token capturado e salvo!');
+                  console.log('Token:', jwtToken.substring(0, 30) + '...');
+            
+                } else {
+                  console.log('❌ JWT Token não encontrado no response');
+                  console.log('Response completo:', JSON.stringify(insomnia.response.text(), null, 2));
+                }
+            
+              } else {
+                console.log('❌ Login falhou, status:', response.getStatusCode());
+              }
+            
+            
+            } catch (error) {
+              console.log('❌ Erro ao processar response:', error.message);
+            }
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl }}/users/me"
+        name: Buscar Dados Pessoais (LOGADOS)
+        meta:
+          id: req_a5ade264d26d4af3961607528e770c20
+          created: 1763244029278
+          modified: 1763244061448
+          isPrivate: false
+          description: ""
+          sortKey: -1759089133481
+        method: GET
+        parameters:
+          - name: name
+            value: ""
+          - name: email
+            value: ""
+          - name: active
+            value: ""
+          - name: page
+            value: ""
+          - name: size
+            value: ""
+          - name: direction
+            value: ""
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.0
+        authentication:
+          type: bearer
+          prefix: "Bearer "
+          token: "{{ _.jwt_token }}"
+          disabled: false
+        scripts:
+          afterResponse: >-
+            // Script para a aba Tests do request de login
+
+            const response = insomnia.response;
+
+
+            try {
+              const responseBody = JSON.parse(response.getBody())
+            
+              // Verifica se o login foi bem-sucedido (status 200)
+              if (response.getStatusCode() === 200) {
+            
+                let jwtToken = null;
+            
+                // Tenta encontrar o token nas estruturas mais comuns
+                if (insomnia.response.text().access_token) {
+                  jwtToken = insomnia.response.text().access_token;
+                }
+                else if (insomnia.response.text().token) {
+                  jwtToken = insomnia.response.text().token;
+                }
+                else if (insomnia.response.text().data && insomnia.response.text().data.token) {
+                  jwtToken = insomnia.response.text().data.token;
+                }
+                else if (insomnia.response.text().data && insomnia.response.text().data.access_token) {
+                  jwtToken = insomnia.response.text().data.access_token;
+                }
+            
+                if (jwtToken) {
+                  // Salva no ambiente global
+                  insomnia.environment.set('jwt_token', jwtToken);
+                  insomnia.environment.set('authorization_header', `Bearer ${jwtToken}`);
+            
+                  console.log('✅ JWT Token capturado e salvo!');
+                  console.log('Token:', jwtToken.substring(0, 30) + '...');
+            
+                } else {
+                  console.log('❌ JWT Token não encontrado no response');
+                  console.log('Response completo:', JSON.stringify(insomnia.response.text(), null, 2));
+                }
+            
+              } else {
+                console.log('❌ Login falhou, status:', response.getStatusCode());
+              }
+            
+            
             } catch (error) {
               console.log('❌ Erro ao processar response:', error.message);
             }
@@ -217,12 +550,12 @@ collection:
             send: true
             store: true
           rebuildPath: true
-      - url: "{{ _.baseURl }}/courses/2"
+      - url: "{{ _.baseURl }}/courses/1"
         name: Buscar Curso por id (TODOS)
         meta:
           id: req_b06e9cc155444a15a2052c722274f6aa
           created: 1759457085165
-          modified: 1761696103518
+          modified: 1763516776611
           isPrivate: false
           description: ""
           sortKey: -1759088853849
@@ -254,47 +587,33 @@ collection:
         meta:
           id: req_e0e0bc64ed1c46ab982763376a05af37
           created: 1759457258314
-          modified: 1761611091625
+          modified: 1763517899397
           isPrivate: false
           description: ""
           sortKey: -1759088853861.5
         method: GET
         parameters:
-          - id: pair_53af6b87b01e460a96ec03213d240058
-            name: nome
+          - name: name
             value: ""
-            description: ""
-            disabled: false
-          - id: pair_c9be6e9538184cf78ededff2736d0a88
-            name: visivel
+            id: pair_3d3c851fd7ff4eb5b40603b477e59b50
+          - name: visible
             value: ""
-            description: ""
-            disabled: false
-          - id: pair_21f020e974f7405b900b03c77b93a6c2
-            name: areaConhecimentoId
+            id: pair_597327db88de4102bc4748e05b9d8fc6
+          - name: knowledgeAreaId
             value: ""
-            description: ""
-            disabled: false
-          - id: pair_cbe57a021bca421cad4dad6ebbbb5bde
-            name: campusId
+            id: pair_630a20e12b4c427a8c6fb633b4416c9c
+          - name: campusId
             value: ""
-            description: ""
-            disabled: false
-          - id: pair_c6a762daa122418db394da4f084c5bcf
-            name: page
+            id: pair_5fb2576ed1ac4306a82bfdbc08f1b2b4
+          - name: page
             value: ""
-            description: ""
-            disabled: false
-          - id: pair_1d09fc72efb14767a5f3969e44c3d45d
-            name: size
+            id: pair_fb91cb6594794f01ac72308755bedbfb
+          - name: size
             value: ""
-            description: ""
-            disabled: false
-          - id: pair_240f0186605944dc9dc1209b79c791f0
-            name: direction
+            id: pair_0d8695ac22024e709711142b46ee85aa
+          - name: direction
             value: ""
-            description: ""
-            disabled: false
+            id: pair_40336102c26a4ee6ada25ffb28c26e8a
         headers:
           - name: User-Agent
             value: insomnia/11.6.0
@@ -317,7 +636,7 @@ collection:
         meta:
           id: req_cfa92ff7afb54518935f61a250675e19
           created: 1759457359435
-          modified: 1761611122582
+          modified: 1763516031756
           isPrivate: false
           description: ""
           sortKey: -1759088853880.25
@@ -326,7 +645,7 @@ collection:
           mimeType: application/json
           text: |-
             {
-            	"visible": true
+            	"visivel": false
             }
         headers:
           - name: Content-Type
@@ -476,7 +795,7 @@ collection:
             meta:
               id: req_a3ac1da6f0d84ff7a58a181aecfb8cff
               created: 1759797642281
-              modified: 1761097057392
+              modified: 1763517647485
               isPrivate: false
               description: ""
               sortKey: -1759268908503.75
@@ -503,7 +822,7 @@ collection:
             meta:
               id: req_69ccea7c27b64bde905809c48c357e5c
               created: 1759797674028
-              modified: 1761097088050
+              modified: 1763517474644
               isPrivate: false
               description: ""
               sortKey: -1759180960171.875
@@ -516,7 +835,7 @@ collection:
               type: bearer
               token: "{{ _.jwt_token }}"
               prefix: "Bearer "
-              disabled: true
+              disabled: false
             settings:
               renderRequestBody: true
               encodeUrl: true
@@ -565,6 +884,33 @@ collection:
                 send: true
                 store: true
               rebuildPath: true
+          - url: "{{ _.baseURl }}/courses/1/lessons/5"
+            name: Excluir Aula (ADM)
+            meta:
+              id: req_92f70c3bcbb045c5b731e3e3ee61b4f7
+              created: 1763512712699
+              modified: 1763513025030
+              isPrivate: false
+              description: ""
+              sortKey: -1759312882669.6875
+            method: DELETE
+            headers:
+              - name: User-Agent
+                value: insomnia/11.6.0
+                id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+            authentication:
+              type: bearer
+              token: "{{ _.jwt_token }}"
+              prefix: "Bearer "
+              disabled: false
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
   - name: Área de Conhecimento
     meta:
       id: fld_a185742bfd5247c3b28a61f6bcbf6cef
@@ -578,7 +924,7 @@ collection:
         meta:
           id: req_824c9b2010854af38e0c5a10833242ff
           created: 1759093009941
-          modified: 1761097148032
+          modified: 1763239908088
           isPrivate: false
           description: ""
           sortKey: -1759093011840
@@ -587,7 +933,7 @@ collection:
           mimeType: application/json
           text: |-
             {
-            	"name": "informática",
+            	"name": "Informática",
             	"visible": true
             }
         headers:
@@ -614,7 +960,7 @@ collection:
         meta:
           id: req_bf90803badc649249aee78737921d59e
           created: 1759095806154
-          modified: 1761697303655
+          modified: 1763239889297
           isPrivate: false
           description: ""
           sortKey: -1759092052412.5
@@ -662,6 +1008,42 @@ collection:
             send: true
             store: true
           rebuildPath: true
+      - url: "{{ _.baseURl }}/knowledge-area/6"
+        name: Editar Área de Conhecimento (ADM)
+        meta:
+          id: req_0249ed93a5da4391b7d4925e7f81cb40
+          created: 1763239880461
+          modified: 1763239979116
+          isPrivate: false
+          description: ""
+          sortKey: -1759092771983.125
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"name": "Informática",
+            	"visible": true
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
   - name: Campus
     meta:
       id: fld_1bfb675a72f44caa9bf17e869df59203
@@ -675,7 +1057,7 @@ collection:
         meta:
           id: req_59e1de0476c04487b9c9233747f1762f
           created: 1759097517512
-          modified: 1761097187286
+          modified: 1763239013899
           isPrivate: false
           description: ""
           sortKey: -1759093011840
@@ -759,6 +1141,42 @@ collection:
             send: true
             store: true
           rebuildPath: true
+      - url: "{{ _.baseURl }}/campus/7"
+        name: Editar Campus (ADM)
+        meta:
+          id: req_84d0b994d20d4358a406b403d8ec6938
+          created: 1763239066674
+          modified: 1763239591543
+          isPrivate: false
+          description: ""
+          sortKey: -1759092532126.25
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"name": "IFPR -Campus Paranaguá",
+            	"visible": false
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
   - name: Matricula
     meta:
       id: fld_ebb52eb7e0e24969b62a0f944dc64195
@@ -807,37 +1225,68 @@ collection:
         meta:
           id: req_842f20c058ed4d1d96e50c865865d312
           created: 1760577280248
-          modified: 1761614406747
+          modified: 1763432134727
           isPrivate: false
           description: ""
           sortKey: -1760408852634
         method: GET
         parameters:
-          - id: pair_53af6b87b01e460a96ec03213d240058
-            name: nome
+          - name: nome
             value: ""
-            description: ""
-            disabled: false
-          - id: pair_c9be6e9538184cf78ededff2736d0a88
-            name: concluido
+          - name: concluido
             value: ""
-            description: ""
-            disabled: false
-          - id: pair_c6a762daa122418db394da4f084c5bcf
-            name: page
+          - name: knowledgeAreaId
             value: ""
-            description: ""
-            disabled: false
-          - id: pair_1d09fc72efb14767a5f3969e44c3d45d
-            name: size
+          - name: campusId
+            value: "1"
+          - name: page
             value: ""
-            description: ""
-            disabled: false
-          - id: pair_240f0186605944dc9dc1209b79c791f0
-            name: direction
+          - name: size
             value: ""
-            description: ""
-            disabled: false
+          - name: direction
+            value: ""
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl }}/enrollments/courses-with-certificate-status"
+        name: Buscar Meus Cursos Concluidos (ALUNO)
+        meta:
+          id: req_47832b25ea9b4c84866e398bf032e3e6
+          created: 1763433565271
+          modified: 1763434185721
+          isPrivate: false
+          description: ""
+          sortKey: -1760408852584
+        method: GET
+        parameters:
+          - name: nome
+            value: ""
+          - name: status
+            value: ""
+          - name: knowledgeAreaId
+            value: ""
+          - name: campusId
+            value: ""
+          - name: page
+            value: ""
+          - name: size
+            value: ""
+          - name: direction
+            value: ""
         headers:
           - name: User-Agent
             value: insomnia/11.6.0
@@ -863,12 +1312,12 @@ collection:
           sortKey: -1760408852534
           description: ""
         children:
-          - url: "{{ _.baseURl }}/enrollments/1/lessons/5/progress"
+          - url: "{{ _.baseURl }}/enrollments/3/lessons/100/progress"
             name: ProgressoAula (ALUNO)
             meta:
               id: req_acecc2a06f614228bf115bfb0636420f
               created: 1760408866157
-              modified: 1761096811858
+              modified: 1763514116766
               isPrivate: false
               description: ""
               sortKey: -1760408871563
@@ -1241,18 +1690,88 @@ collection:
             send: true
             store: true
           rebuildPath: true
+  - name: Auto Aprovação
+    meta:
+      id: fld_11230aee04914eaa94fa90acffb4b78f
+      created: 1763429645033
+      modified: 1763512667508
+      sortKey: -1761992938699.25
+      description: ""
+    children:
+      - url: "{{ _.baseURl }}/admin/auto-approve"
+        name: Atualizar Aprovação Automática (ADM)
+        meta:
+          id: req_b38b23745b524c60981f650614a5693f
+          created: 1763429677063
+          modified: 1763430628682
+          isPrivate: false
+          description: ""
+          sortKey: -1763429679560
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "enabled": false
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseURl }}/admin/auto-approve"
+        name: Buscar Status Aprovação Automática (ADM)
+        meta:
+          id: req_b58e6f9361d347328d62f72ada493ba0
+          created: 1763430648650
+          modified: 1763430670927
+          isPrivate: false
+          description: ""
+          sortKey: -1762471876750.5
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.6.0
+            id: pair_84fcc4fd00c44dafb5f9e1ecae00fe4c
+        authentication:
+          type: bearer
+          token: "{{ _.jwt_token }}"
+          prefix: "Bearer "
+          disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
 cookieJar:
   name: Default Jar
   meta:
     id: jar_35488ce7784501525d7fdd16a2cdbad5cb205d5a
     created: 1757808934919
-    modified: 1761696818724
+    modified: 1763517536606
 environments:
   name: Base Environment
   meta:
     id: env_35488ce7784501525d7fdd16a2cdbad5cb205d5a
     created: 1757808934918
-    modified: 1761696818726
+    modified: 1763517536610
     isPrivate: false
   data:
     baseURl: http://localhost:8080/mooc

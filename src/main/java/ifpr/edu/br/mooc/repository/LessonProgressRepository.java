@@ -2,6 +2,7 @@ package ifpr.edu.br.mooc.repository;
 
 import ifpr.edu.br.mooc.entity.LessonProgress;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -17,4 +18,9 @@ public interface LessonProgressRepository extends JpaRepository<LessonProgress, 
 
     @Query("SELECT COUNT(lp) FROM LessonProgress lp WHERE lp.enrollmentId = :enrollmentId AND lp.completed = true")
     Integer countCompletedByEnrollmentId(@Param("enrollmentId") Long enrollmentId);
+
+    @Modifying
+    @Query("DELETE FROM LessonProgress lp WHERE lp.lessonId = :lessonId")
+    void deleteByLessonId(@Param("lessonId") Long lessonId);
+
 }

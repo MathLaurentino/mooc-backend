@@ -83,6 +83,19 @@ public class CurrentUserService {
     }
 
     /**
+     * Check if current user is the ADMIN
+     * @return true if the user is the ADMIN
+     */
+    public boolean isCurrentUserAdmin() {
+        try {
+            String role = getCurrentUserPrincipal().getRole().name();
+            return "ADMIN".equals(role);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
      * Load fresh user data from database (use when you need updated data)
      * @return Fresh User entity from database
      */
