@@ -5,6 +5,7 @@ import ifpr.edu.br.mooc.dto.course.*;
 import ifpr.edu.br.mooc.dto.lesson.*;
 import ifpr.edu.br.mooc.dto.pageable.PageResponse;
 import ifpr.edu.br.mooc.repository.specification.CourseSpecification;
+import ifpr.edu.br.mooc.security.CurrentUserService;
 import ifpr.edu.br.mooc.service.CourseService;
 import ifpr.edu.br.mooc.service.LessonService;
 import jakarta.validation.Valid;
@@ -31,6 +32,7 @@ public class CourseControllerImpl implements CourseController {
 
     private final CourseService courseService;
     private final LessonService lessonService;
+    private final CurrentUserService currentUserService;
 
     @Override
     @PostMapping
@@ -119,7 +121,18 @@ public class CourseControllerImpl implements CourseController {
     ) {
         var sortDirection = "desc".equalsIgnoreCase(direction) ? Sort.Direction.DESC : Sort.Direction.ASC;
         var pageable = PageRequest.of(page, size, Sort.by(sortDirection, "id"));
-        var spec = new CourseSpecification(name, visible, knowledgeAreaId, campusId);
+
+        boolean isAdmin = false;
+        Long userId = null;
+
+        try {
+            isAdmin = currentUserService.isCurrentUserAdmin();
+            userId = currentUserService.getCurrentUserId();
+        } catch (Exception e) {
+            // Usuário não logado
+        }
+
+        var spec = new CourseSpecification(name, visible, knowledgeAreaId, campusId, isAdmin, userId);
 
         var response = courseService.getCourses(spec, pageable);
         return ResponseEntity.ok(response);
