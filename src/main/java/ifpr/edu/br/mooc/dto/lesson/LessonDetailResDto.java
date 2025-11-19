@@ -7,7 +7,6 @@ public record LessonDetailResDto(
         Long cursoId,
         String titulo,
         String descricao,
-        String miniatura,
         String urlVideo,
         Integer ordemAula,
         CursoInfo curso
