@@ -31,15 +31,22 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
     WHERE 1=1
         AND (:name IS NULL OR LOWER(c.nome) LIKE LOWER(CONCAT('%', CAST(:name AS TEXT), '%')))
         AND (
-            :isAdmin = true 
-            OR (
-                :visible IS NULL AND (
-                    c.visivel = true 
-                    OR (:userId IS NOT NULL AND e.id IS NOT NULL)
+            (:isAdmin = true AND (
+                :visible IS NULL
+                OR (:visible = true AND c.visivel = true)
+                OR (:visible = false AND c.visivel = false)
+            ))
+            OR
+            (:isAdmin = false AND (
+                (
+                    :visible IS NULL AND (
+                        c.visivel = true 
+                        OR (:userId IS NOT NULL AND e.id IS NOT NULL)
+                    )
                 )
-            )
-            OR (:visible = true AND c.visivel = true)
-            OR (:visible = false AND :userId IS NOT NULL AND c.visivel = false AND e.id IS NOT NULL)
+                OR (:visible = true AND c.visivel = true)
+                OR (:visible = false AND :userId IS NOT NULL AND c.visivel = false AND e.id IS NOT NULL)
+            ))
         )
         AND (:knowledgeAreaId IS NULL OR c.area_conhecimento_id = :knowledgeAreaId)
         AND (:campusId IS NULL OR c.campus_id = :campusId)
@@ -48,7 +55,6 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
             OR (:enrolled = true AND :userId IS NOT NULL AND e.id IS NOT NULL)
             OR (:enrolled = false AND :userId IS NOT NULL AND e.id IS NULL)
         )
-    ORDER BY popularity DESC
     """,
             countQuery = """
     SELECT COUNT(DISTINCT c.id)
@@ -57,15 +63,22 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
     WHERE 1=1
         AND (:name IS NULL OR LOWER(c.nome) LIKE LOWER(CONCAT('%', CAST(:name AS TEXT), '%')))
         AND (
-            :isAdmin = true 
-            OR (
-                :visible IS NULL AND (
-                    c.visivel = true 
-                    OR (:userId IS NOT NULL AND e.id IS NOT NULL)
+            (:isAdmin = true AND (
+                :visible IS NULL
+                OR (:visible = true AND c.visivel = true)
+                OR (:visible = false AND c.visivel = false)
+            ))
+            OR
+            (:isAdmin = false AND (
+                (
+                    :visible IS NULL AND (
+                        c.visivel = true 
+                        OR (:userId IS NOT NULL AND e.id IS NOT NULL)
+                    )
                 )
-            )
-            OR (:visible = true AND c.visivel = true)
-            OR (:visible = false AND :userId IS NOT NULL AND c.visivel = false AND e.id IS NOT NULL)
+                OR (:visible = true AND c.visivel = true)
+                OR (:visible = false AND :userId IS NOT NULL AND c.visivel = false AND e.id IS NOT NULL)
+            ))
         )
         AND (:knowledgeAreaId IS NULL OR c.area_conhecimento_id = :knowledgeAreaId)
         AND (:campusId IS NULL OR c.campus_id = :campusId)

@@ -123,11 +123,9 @@ public class CourseControllerImpl implements CourseController {
     ) {
         var sortDirection = "desc".equalsIgnoreCase(direction) ? Sort.Direction.DESC : Sort.Direction.ASC;
 
-        // Validação do campo de ordenação
         String sortField = switch (sortBy.toLowerCase()) {
-            case "name" -> "name";
-            case "popularity" -> "popularity";
-            case "createdat" -> "createdAt";
+            case "nome" -> "name";
+            case "popularidade" -> "popularity";
             default -> "id";
         };
 
@@ -144,7 +142,6 @@ public class CourseControllerImpl implements CourseController {
             // Usuário não logado
         }
 
-        // Passar todos os parâmetros para o service
         var response = courseService.getCourses(
                 name,
                 visible,
