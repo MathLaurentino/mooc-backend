@@ -115,12 +115,24 @@ public class CourseControllerImpl implements CourseController {
             @RequestParam(value = "visible", required = false) Boolean visible,
             @RequestParam(value = "knowledgeAreaId", required = false) Long knowledgeAreaId,
             @RequestParam(value = "campusId", required = false) Long campusId,
+            @RequestParam(value = "enrolled", required = false) Boolean enrolled,
             @RequestParam(value = "page", defaultValue = "0") Integer page,
             @RequestParam(value = "size", defaultValue = "8") Integer size,
+            @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
             @RequestParam(value = "direction", defaultValue = "asc") String direction
     ) {
         var sortDirection = "desc".equalsIgnoreCase(direction) ? Sort.Direction.DESC : Sort.Direction.ASC;
-        var pageable = PageRequest.of(page, size, Sort.by(sortDirection, "id"));
+
+        // Validação do campo de ordenação
+        String sortField = switch (sortBy.toLowerCase()) {
+            case "name" -> "name";
+            case "popularity" -> "popularity";
+            case "createdat" -> "createdAt";
+            default -> "id";
+        };
+
+        Sort sort = Sort.by(sortDirection, sortField);
+        var pageable = PageRequest.of(page, size, sort);
 
         boolean isAdmin = false;
         Long userId = null;
@@ -132,9 +144,18 @@ public class CourseControllerImpl implements CourseController {
             // Usuário não logado
         }
 
-        var spec = new CourseSpecification(name, visible, knowledgeAreaId, campusId, isAdmin, userId);
+        // Passar todos os parâmetros para o service
+        var response = courseService.getCourses(
+                name,
+                visible,
+                knowledgeAreaId,
+                campusId,
+                enrolled,
+                isAdmin,
+                userId,
+                pageable
+        );
 
-        var response = courseService.getCourses(spec, pageable);
         return ResponseEntity.ok(response);
     }
 

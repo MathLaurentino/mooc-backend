@@ -26,8 +26,10 @@ public interface CourseController {
             Boolean visible,
             Long knowledgeAreaId,
             Long campusId,
+            Boolean enrolled,
             Integer page,
             Integer size,
+            String sortBy,
             String direction
     );
 
