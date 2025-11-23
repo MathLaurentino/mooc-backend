@@ -5,7 +5,6 @@ import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
-import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.*;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Image;
@@ -15,9 +14,11 @@ import ifpr.edu.br.mooc.entity.Certificate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,123 +34,107 @@ public class PdfGeneratorService {
     private String baseUrl;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    private static final DeviceRgb GREEN_COLOR = new DeviceRgb(76, 175, 80); // Verde IFPR
+    private static final DeviceRgb TEXT_COLOR = new DeviceRgb(64, 64, 64); // Cinza escuro
+
 
     /**
-     * Gera o PDF do certificado
+     * Gera o PDF do certificado usando o template base
      */
     public byte[] generateCertificatePdf(Certificate certificate) {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 
-            // Criar documento PDF em paisagem (landscape)
+            // Carregar o template PDF do classpath
+            ClassPathResource templateResource = new ClassPathResource("templates/certificado-template.pdf");
+            InputStream templateStream = templateResource.getInputStream();
+
+            PdfReader reader = new PdfReader(templateStream);
             PdfWriter writer = new PdfWriter(baos);
-            PdfDocument pdfDoc = new PdfDocument(writer);
-
-            // Configurar página em paisagem (A4 rotacionado)
-            pdfDoc.setDefaultPageSize(PageSize.A4.rotate());
-
-            Document document = new Document(pdfDoc);
-            document.setMargins(30, 50, 30, 50);
+            PdfDocument pdfDoc = new PdfDocument(reader, writer);
 
             // Adicionar metadados do certificado
             addMetadata(pdfDoc, certificate);
 
-            // Fontes
-            PdfFont boldFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
-            PdfFont regularFont = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+            Document document = new Document(pdfDoc);
 
-            // Título "CERTIFICADO"
-            Paragraph title = new Paragraph("CERTIFICADO")
-                    .setFont(boldFont)
-                    .setFontSize(36)
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setMarginTop(20)
-                    .setMarginBottom(15);
-            document.add(title);
+            // Fontes - usando as fontes padrão mais próximas das solicitadas
+            // Crimson Pro não está disponível, usamos Times (serifada similar)
+            PdfFont crimsonFont = PdfFontFactory.createFont(StandardFonts.TIMES_ROMAN);
+            PdfFont crimsonBoldFont = PdfFontFactory.createFont(StandardFonts.TIMES_BOLD);
 
-            // Subtítulo
-            Paragraph subtitle = new Paragraph("MOOC IFPR - Plataforma de Cursos Massivos Online do IFPR Campus Foz do Iguaçu")
-                    .setFont(regularFont)
+            // Calibri não está disponível, usamos Helvetica (sem serifa, similar)
+            PdfFont calibriFont = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+
+            // Arial = Helvetica
+            PdfFont arialFont = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+
+            // ===== SUBTÍTULO =====
+            // "MOOC IFPR - Plataforma de Cursos Massivos Online do IFPR Campus Foz do Iguaçu"
+            Paragraph subtitle = new Paragraph("MOOC IFPR - PLATAFORMA DE CURSOS MASSIVOS ONLINE DO IFPR CAMPUS FOZ DO IGUAÇU")
+                    .setFont(crimsonFont)
                     .setFontSize(11)
+                    .setFontColor(TEXT_COLOR)
                     .setTextAlignment(TextAlignment.CENTER)
-                    .setMarginBottom(20);
+                    .setFixedPosition(120, 390, 600);
             document.add(subtitle);
 
-            // "Certifica que:"
-            Paragraph certifies = new Paragraph("Certifica que:")
-                    .setFont(regularFont)
-                    .setFontSize(14)
+            // ===== CERTIFICA QUE =====
+            Paragraph certifies = new Paragraph("CERTIFICA QUE:")
+                    .setFont(crimsonFont)
+                    .setFontSize(12)
+                    .setFontColor(TEXT_COLOR)
                     .setTextAlignment(TextAlignment.CENTER)
-                    .setMarginBottom(15);
+                    .setFixedPosition(120, 360, 600); // Movido para baixo: 450 -> 415
             document.add(certifies);
 
-            // Texto principal com dados do aluno
+            // ===== TEXTO PRINCIPAL =====
+            // Construir o texto com os dados do certificado
             String mainText = String.format(
-                    "%s, CPF %s concluiu o curso %s, " +
-                            "ofertado pelo campus de %s, com carga horária de %s horas na data de %s.",
-                    certificate.getStudentName(),
+                    "%s, CPF %s CONCLUIU O CURSO %s, " +
+                            "OFERTADO PELO CAMPOS DE %s, COM " +
+                            "CARGA HORÁRIA DE %s HORAS NA DATA DE %s.",
+                    certificate.getStudentName().toUpperCase(),
                     formatCpf(certificate.getStudentCpf()),
-                    certificate.getCourseName(),
-                    certificate.getCampusName(),
+                    certificate.getCourseName().toUpperCase(),
+                    certificate.getCampusName().toUpperCase().replace("IFPR - CAMPUS ", "").replace("IFPR - CÂMPUS ", ""),
                     certificate.getWorkload(),
                     certificate.getCompletionDate().format(DATE_FORMATTER)
             );
 
             Paragraph mainContent = new Paragraph(mainText)
-                    .setFont(regularFont)
-                    .setFontSize(13)
+                    .setFont(calibriFont)
+                    .setFontSize(16)
+                    .setFontColor(TEXT_COLOR)
                     .setTextAlignment(TextAlignment.CENTER)
-                    .setMarginLeft(80)
-                    .setMarginRight(80)
-                    .setMarginBottom(25);
+                    .setFixedPosition(140, 260, 560); // Movido para baixo: 320 -> 285
             document.add(mainContent);
 
-            // Local e data de emissão
-            String issueDate = String.format("FOZ DO IGUAÇU, PR, %s",
-                    java.time.LocalDate.now().format(DATE_FORMATTER));
-
-            Paragraph location = new Paragraph(issueDate)
-                    .setFont(regularFont)
-                    .setFontSize(12)
-                    .setTextAlignment(TextAlignment.CENTER)
-                    .setMarginBottom(20);
-            document.add(location);
-
-            // Container para QR Code e Código (lado a lado)
-            com.itextpdf.layout.element.Table table = new com.itextpdf.layout.element.Table(2);
-            table.setWidth(com.itextpdf.layout.properties.UnitValue.createPercentValue(100));
-            table.setMarginTop(10);
-
-            // Célula esquerda: QR Code
-            String validationUrl = String.format("%s/mooc/certificates/validate/%s",
+            // ===== QR CODE =====
+            String validationUrl = String.format("%s/mooc/certificates/validate/code/%s",
                     baseUrl, certificate.getId());
             byte[] qrCodeBytes = qrCodeService.generateQRCode(validationUrl);
-            Image qrCode = new Image(ImageDataFactory.create(qrCodeBytes));
-            qrCode.setWidth(120);
-            qrCode.setHeight(120);
+            Image qrCode = new Image(ImageDataFactory.create(qrCodeBytes))
+                    .setWidth(100)
+                    .setHeight(100)
+                    .setFixedPosition(175, 110); // Movido para baixo: 140 -> 110
+            document.add(qrCode);
 
-            com.itextpdf.layout.element.Cell qrCell = new com.itextpdf.layout.element.Cell();
-            qrCell.add(qrCode);
-            qrCell.setTextAlignment(TextAlignment.CENTER);
-            qrCell.setBorder(com.itextpdf.layout.borders.Border.NO_BORDER);
-            qrCell.setPaddingLeft(100);
-            table.addCell(qrCell);
+            // ===== NÚMERO DO CERTIFICADO =====
+            // Alinhado na parte inferior do QR Code (QR Code termina em y=110, então texto em y=120)
+            Paragraph certificateNumber = new Paragraph("N° do certificado: " + certificate.getId())
+                    .setFont(arialFont)
+                    .setFontSize(9)
+                    .setFontColor(TEXT_COLOR)
+                    .setFixedPosition(295, 130, 500); // Alinhado com a parte inferior do QR: y=130
+            document.add(certificateNumber);
 
-            // Célula direita: Código do certificado
-            Paragraph certificateCode = new Paragraph(String.format("Código: %s", certificate.getId()))
-                    .setFont(regularFont)
-                    .setFontSize(10)
-                    .setTextAlignment(TextAlignment.CENTER);
-
-            com.itextpdf.layout.element.Cell codeCell = new com.itextpdf.layout.element.Cell();
-            codeCell.add(certificateCode);
-            codeCell.setTextAlignment(TextAlignment.CENTER);
-            codeCell.setVerticalAlignment(com.itextpdf.layout.properties.VerticalAlignment.MIDDLE);
-            codeCell.setBorder(com.itextpdf.layout.borders.Border.NO_BORDER);
-            codeCell.setPaddingRight(100);
-            table.addCell(codeCell);
-
-            document.add(table);
+            // ===== URL DE VERIFICAÇÃO =====
+            String shortUrl = validationUrl.replace(baseUrl + "/mooc/", "");
+            Paragraph verificationUrl = new Paragraph("URL de verificação: " + shortUrl)
+                    .setFont(arialFont)
+                    .setFontSize(9)
+                    .setFontColor(TEXT_COLOR)
+                    .setFixedPosition(295, 113, 500); // Logo abaixo do número: y=113
+            document.add(verificationUrl);
 
             document.close();
 
