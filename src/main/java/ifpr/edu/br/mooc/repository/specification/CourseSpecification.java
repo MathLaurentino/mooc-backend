@@ -15,14 +15,17 @@ public class CourseSpecification implements Specification<Course> {
     private final Boolean visible;
     private final Long knowledgeAreaId;
     private final Long campusId;
+    private final Boolean enrolled;
     private final boolean isAdmin;
     private final Long userId;
 
-    public CourseSpecification(String name, Boolean visible, Long knowledgeAreaId, Long campusId, boolean isAdmin, Long userId) {
+    public CourseSpecification(String name, Boolean visible, Long knowledgeAreaId, Long campusId,
+                               Boolean enrolled, boolean isAdmin, Long userId) {
         this.name = name;
         this.visible = visible;
         this.knowledgeAreaId = knowledgeAreaId;
         this.campusId = campusId;
+        this.enrolled = enrolled;
         this.isAdmin = isAdmin;
         this.userId = userId;
     }
@@ -35,6 +38,7 @@ public class CourseSpecification implements Specification<Course> {
             predicates.add(cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%"));
         }
 
+        // Lógica de visibilidade
         if (isAdmin) {
             if (visible != null) {
                 predicates.add(cb.equal(root.get("visible"), visible));
@@ -43,12 +47,7 @@ public class CourseSpecification implements Specification<Course> {
             if (visible != null && visible) {
                 predicates.add(cb.equal(root.get("visible"), true));
             } else if (visible != null && !visible) {
-                // Requisição: visible=false
-                // Só admin pode listar cursos invisíveis propositalmente
-                // Para alunos: retorna apenas cursos invisíveis onde está inscrito
-
                 if (userId != null) {
-                    // Aluno logado pedindo invisíveis - mostrar apenas onde está inscrito
                     Subquery<Long> enrolledCoursesSubquery = query.subquery(Long.class);
                     Root<Enrollment> enrollmentRoot = enrolledCoursesSubquery.from(Enrollment.class);
                     enrolledCoursesSubquery.select(enrollmentRoot.get("courseId"));
@@ -59,17 +58,11 @@ public class CourseSpecification implements Specification<Course> {
                             root.get("id").in(enrolledCoursesSubquery)
                     ));
                 } else {
-                    // Usuário não logado pedindo invisíveis - retorna vazio
                     predicates.add(cb.equal(root.get("visible"), true));
-                    predicates.add(cb.equal(root.get("visible"), false)); // Contradição intencional = vazio
+                    predicates.add(cb.equal(root.get("visible"), false));
                 }
-
             } else {
-                // Requisição: visible=null (não especificado)
-                // Mostrar visíveis + invisíveis onde está inscrito (se logado)
-
                 if (userId != null) {
-                    // Usuário logado - mostrar visíveis + invisíveis onde está inscrito
                     Subquery<Long> enrolledCoursesSubquery = query.subquery(Long.class);
                     Root<Enrollment> enrollmentRoot = enrolledCoursesSubquery.from(Enrollment.class);
                     enrolledCoursesSubquery.select(enrollmentRoot.get("courseId"));
@@ -80,18 +73,35 @@ public class CourseSpecification implements Specification<Course> {
                             root.get("id").in(enrolledCoursesSubquery)
                     ));
                 } else {
-                    // Usuário não logado - mostrar apenas visíveis
                     predicates.add(cb.equal(root.get("visible"), true));
                 }
             }
         }
 
+        // Filtro de área de conhecimento
         if (knowledgeAreaId != null) {
             predicates.add(cb.equal(root.get("knowledgeAreaId"), knowledgeAreaId));
         }
 
+        // Filtro de campus
         if (campusId != null) {
             predicates.add(cb.equal(root.get("campusId"), campusId));
+        }
+
+        // Filtro de matrícula (enrolled)
+        if (enrolled != null && userId != null) {
+            Subquery<Long> enrolledCoursesSubquery = query.subquery(Long.class);
+            Root<Enrollment> enrollmentRoot = enrolledCoursesSubquery.from(Enrollment.class);
+            enrolledCoursesSubquery.select(enrollmentRoot.get("courseId"));
+            enrolledCoursesSubquery.where(cb.equal(enrollmentRoot.get("userId"), userId));
+
+            if (enrolled) {
+                // Cursos onde está matriculado
+                predicates.add(root.get("id").in(enrolledCoursesSubquery));
+            } else {
+                // Cursos onde NÃO está matriculado
+                predicates.add(cb.not(root.get("id").in(enrolledCoursesSubquery)));
+            }
         }
 
         return cb.and(predicates.toArray(new Predicate[0]));

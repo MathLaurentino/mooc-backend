@@ -156,10 +156,39 @@ public class CourseService {
 
     @Transactional(readOnly = true)
     public PageResponse<CourseListResDto> getCourses(
-            CourseSpecification spec,
+            String name,
+            Boolean visible,
+            Long knowledgeAreaId,
+            Long campusId,
+            Boolean enrolled,
+            boolean isAdmin,
+            Long userId,
             Pageable pageable
     ) {
-        Page<Course> coursesPage = courseRepository.findAll(spec, pageable);
+        Page<Course> coursesPage;
+
+        // Verificar se a ordenação é por popularidade
+        boolean sortByPopularity = pageable.getSort().stream()
+                .anyMatch(order -> "popularity".equals(order.getProperty()));
+
+        if (sortByPopularity) {
+            // Usar query customizada para ordenação por popularidade
+            coursesPage = courseRepository.findAllByPopularity(
+                    name,
+                    visible,
+                    knowledgeAreaId,
+                    campusId,
+                    enrolled,
+                    userId,
+                    isAdmin,
+                    pageable
+            );
+        } else {
+            // Usar specification normal
+            var spec = new CourseSpecification(name, visible, knowledgeAreaId, campusId, enrolled, isAdmin, userId);
+            coursesPage = courseRepository.findAll(spec, pageable);
+        }
+
         Map<Long, Long> enrollmentsByCourseId = getEnrollmentsByCourseId();
 
         List<CourseListResDto> content = coursesPage.getContent().stream()
