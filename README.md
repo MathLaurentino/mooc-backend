@@ -14,7 +14,7 @@ Sistema de gerenciamento de cursos online massivos (MOOC) desenvolvido para o IF
 O projeto está atualmente em stage nos seguintes endereços:
 
 - **Backend**: http://200.17.101.2:8000/mooc
-- **Frontend**: http://200.17.101.2:3000
+- **Frontend**: http://200.17.101.2:3000 (em breve)
 
 ## 📋 Pré-requisitos
 
@@ -46,7 +46,7 @@ spring.datasource.password=sua_senha
 ```properties
 # Para ambiente local, altere de:
 server.base-url=http://200.17.101.2:8000
-frontend.base-url=http://200.17.101.2:3000 (em breve)
+frontend.base-url=http://200.17.101.2:3000
 
 # Para:
 server.base-url=http://localhost:8080
