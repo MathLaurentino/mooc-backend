@@ -9,6 +9,13 @@ Sistema de gerenciamento de cursos online massivos (MOOC) desenvolvido para o IF
 - **Autenticação**: JWT (JSON Web Tokens)
 - **Migrations**: Flyway
 
+## 🌐 URLs de Produção
+
+O projeto está atualmente em produção nos seguintes endereços:
+
+- **Backend**: http://200.17.101.2:8000/mooc
+- **Frontend**: http://200.17.101.2:3000
+
 ## 📋 Pré-requisitos
 
 - Java 21 ou superior
@@ -33,7 +40,22 @@ spring.datasource.username=seu_usuario
 spring.datasource.password=sua_senha
 ```
 
-### 3. Compilar e Executar
+### 3. Configurar URLs (Ambiente Local)
+
+**IMPORTANTE**: Se você for executar o projeto **localmente**, é necessário alterar as seguintes propriedades no arquivo `application.properties`:
+```properties
+# Para ambiente local, altere de:
+server.base-url=http://200.17.101.2:8000
+frontend.base-url=http://200.17.101.2:3000
+
+# Para:
+server.base-url=http://localhost:8080
+frontend.base-url=http://localhost:3000
+```
+
+> **Nota**: As URLs configuradas por padrão (`200.17.101.2`) são para o ambiente de produção. Para desenvolvimento local, utilize `localhost`.
+
+### 4. Compilar e Executar
 
 No diretório raiz do projeto, execute:
 ```bash
@@ -46,12 +68,18 @@ mvn spring-boot:run
 
 A aplicação estará disponível em: `http://localhost:8080/mooc`
 
-### 4. Importe Arquivo Insomnia
+### 5. Importe Arquivo Insomnia
 
-Após iniciar a aplicação, importe a collection do insomina que esta no seguinte arquivo:
+Após iniciar a aplicação, importe a collection do Insomnia que está no seguinte arquivo:
 ```
 mooc-insomnia.yaml
 ```
+
+A collection possui dois ambientes configurados:
+- **localhost**: Para desenvolvimento local (http://localhost:8080)
+- **stage**: Para ambiente de produção (http://200.17.101.2:8000)
+
+Você pode alternar entre os ambientes clicando no seletor no **canto superior esquerdo** do Insomnia.
 
 ## 👤 Usuários Padrão
 
@@ -70,8 +98,8 @@ O sistema cria automaticamente dois usuários para testes:
 O Flyway criará automaticamente todas as tabelas necessárias:
 - Usuários (alunos e administradores)
 - Cursos e Aulas
-- Inscrições e Progresso
-- Certificados e Solicitações
+- Inscrições e Progresso de Aula
+- Certificados e Solicitação de Certificado
 - Campus e Áreas de Conhecimento
 
 Dados de exemplo (cursos, campus, áreas de conhecimento) são populados automaticamente.
@@ -82,6 +110,8 @@ Para acessar endpoints protegidos:
 
 1. Faça login via `POST /mooc/auth/login`
 2. Use o token JWT retornado no header `Authorization: Bearer {token}`
+
+> **💡 Dica para usuários do Insomnia**: A collection está configurada para capturar automaticamente o token JWT da resposta de login e armazená-lo na variável global `jwt_token`. Isso significa que você não precisa copiar e colar o token manualmente em cada requisição - todas as requisições protegidas já estão configuradas para usar essa variável automaticamente!
 
 ## 📦 Principais Funcionalidades
 
@@ -102,3 +132,7 @@ Para acessar endpoints protegidos:
 **Erro de compilação:**
 - Verifique se está usando Java 21
 - Execute `mvn clean install -U` para atualizar dependências
+
+**Problemas com URLs/CORS:**
+- Verifique se as propriedades `server.base-url` e `frontend.base-url` estão configuradas corretamente para seu ambiente (local ou produção)
+- Para desenvolvimento local, use `localhost` ao invés dos IPs de produção
