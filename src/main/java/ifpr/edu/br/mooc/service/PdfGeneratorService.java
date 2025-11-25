@@ -30,7 +30,7 @@ public class PdfGeneratorService {
 
     private final QRCodeService qrCodeService;
 
-    @Value("${server.base-url:http://localhost:8080}")
+    @Value("${frontend.base-url:http://localhost:8080}")
     private String baseUrl;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -109,8 +109,7 @@ public class PdfGeneratorService {
             document.add(mainContent);
 
             // ===== QR CODE =====
-            String validationUrl = String.format("%s/mooc/certificates/validate/code/%s",
-                    baseUrl, certificate.getId());
+            String validationUrl = String.format("%s/verificar-certificado/%s",baseUrl, certificate.getId());
             byte[] qrCodeBytes = qrCodeService.generateQRCode(validationUrl);
             Image qrCode = new Image(ImageDataFactory.create(qrCodeBytes))
                     .setWidth(100)
