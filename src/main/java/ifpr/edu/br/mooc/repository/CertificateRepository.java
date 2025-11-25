@@ -5,12 +5,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface CertificateRepository extends JpaRepository<Certificate, String> {
 
     @Query("SELECT c FROM Certificate c WHERE c.enrollmentId = :enrollmentId ORDER BY c.createdAt DESC")
-    Optional<Certificate> findLatestByEnrollmentId(@Param("enrollmentId") Long enrollmentId);
+    List<Certificate> findAllByEnrollmentIdOrderByCreatedAtDesc(@Param("enrollmentId") Long enrollmentId);
+
+    default Optional<Certificate> findLatestByEnrollmentId(Long enrollmentId) {
+        List<Certificate> certificates = findAllByEnrollmentIdOrderByCreatedAtDesc(enrollmentId);
+        return certificates.isEmpty() ? Optional.empty() : Optional.of(certificates.get(0));
+    }
 
     boolean existsByEnrollmentId(Long enrollmentId);
 
