@@ -9,9 +9,9 @@ Sistema de gerenciamento de cursos online massivos (MOOC) desenvolvido para o IF
 - **Autenticação**: JWT (JSON Web Tokens)
 - **Migrations**: Flyway
 
-## 🌐 URLs de Produção
+## 🌐 URLs de Stage
 
-O projeto está atualmente em produção nos seguintes endereços:
+O projeto está atualmente em stage nos seguintes endereços:
 
 - **Backend**: http://200.17.101.2:8000/mooc
 - **Frontend**: http://200.17.101.2:3000
@@ -53,7 +53,7 @@ server.base-url=http://localhost:8080
 frontend.base-url=http://localhost:3000
 ```
 
-> **Nota**: As URLs configuradas por padrão (`200.17.101.2`) são para o ambiente de produção. Para desenvolvimento local, utilize `localhost`.
+> **Nota**: As URLs configuradas por padrão (`200.17.101.2`) são para o ambiente de stage. Para desenvolvimento local, utilize `localhost`.
 
 ### 4. Compilar e Executar
 
@@ -77,7 +77,7 @@ mooc-insomnia.yaml
 
 A collection possui dois ambientes configurados:
 - **localhost**: Para desenvolvimento local (http://localhost:8080)
-- **stage**: Para ambiente de produção (http://200.17.101.2:8000)
+- **stage**: Para ambiente de stage (http://200.17.101.2:8000)
 
 Você pode alternar entre os ambientes clicando no seletor no **canto superior esquerdo** do Insomnia.
 
@@ -134,5 +134,5 @@ Para acessar endpoints protegidos:
 - Execute `mvn clean install -U` para atualizar dependências
 
 **Problemas com URLs/CORS:**
-- Verifique se as propriedades `server.base-url` e `frontend.base-url` estão configuradas corretamente para seu ambiente (local ou produção)
-- Para desenvolvimento local, use `localhost` ao invés dos IPs de produção
+- Verifique se as propriedades `server.base-url` e `frontend.base-url` estão configuradas corretamente para seu ambiente (local ou stage)
+- Para desenvolvimento local, use `localhost` ao invés dos IPs de stage
