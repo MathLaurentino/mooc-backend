@@ -46,7 +46,7 @@ spring.datasource.password=sua_senha
 ```properties
 # Para ambiente local, altere de:
 server.base-url=http://200.17.101.2:8000
-frontend.base-url=http://200.17.101.2:3000
+frontend.base-url=http://200.17.101.2:3000 (em breve)
 
 # Para:
 server.base-url=http://localhost:8080
