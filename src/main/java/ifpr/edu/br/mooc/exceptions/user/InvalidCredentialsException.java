@@ -5,6 +5,6 @@ import ifpr.edu.br.mooc.exceptions.base.UnauthorizedException;
 public class InvalidCredentialsException extends UnauthorizedException {
     
     public InvalidCredentialsException() {
-        super("Invalid email or password");
+        super("Email ou senha Inválidos");
     }
 }
