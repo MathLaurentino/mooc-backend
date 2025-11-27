@@ -5,10 +5,10 @@ import ifpr.edu.br.mooc.exceptions.base.ConflictException;
 public class DuplicateEmailException extends ConflictException {
     
     public DuplicateEmailException() {
-        super("Email already registered in the system");
+        super("Email já cadastrado  no sistema.");
     }
     
     public DuplicateEmailException(String email) {
-        super(String.format("Email '%s' is already registered in the system", email));
+        super(String.format("Email '%s' já cadastrado no sistema", email));
     }
 }

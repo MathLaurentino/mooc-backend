@@ -8,16 +8,16 @@ import jakarta.validation.constraints.Positive;
 import java.util.List;
 
 public record LessonReorderReqDto(
-        @NotEmpty(message = "A lista de aulas não pode estar vazia")
+        @NotEmpty(message = "{lesson.reorder.list.notempty}")
         @Valid
         List<LessonOrderItem> aulas
 ) {
     public record LessonOrderItem(
-            @NotNull(message = "ID da aula é obrigatório")
+            @NotNull(message = "{lesson.reorder.id.notnull}")
             Long id,
 
-            @NotNull(message = "Ordem da aula é obrigatória")
-            @Positive(message = "Ordem deve ser um número positivo")
+            @NotNull(message = "{lesson.reorder.order.notnull}")
+            @Positive(message = "{lesson.reorder.order.positive}")
             Integer ordemAula
     ) {}
 }

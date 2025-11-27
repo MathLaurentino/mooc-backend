@@ -9,16 +9,16 @@ import jakarta.validation.constraints.Pattern;
 import java.util.List;
 
 public record CertificateRequestBatchUpdateDto(
-        @NotBlank(message = "Status é obrigatório")
-        @Pattern(regexp = "aprovado|reprovado", message = "Status deve ser 'aprovado' ou 'reprovado'")
+        @NotBlank(message = "{certificateBatch.status.notblank}")
+        @Pattern(regexp = "aprovado|reprovado", message = "{certificateBatch.status.pattern}")
         String status,
 
-        @NotEmpty(message = "A lista de solicitações não pode estar vazia")
+        @NotEmpty(message = "{certificateBatch.requests.notempty}")
         @Valid
         List<RequestUpdate> requests
 ) {
     public record RequestUpdate(
-            @NotNull(message = "ID da solicitação é obrigatório")
+            @NotNull(message = "{certificateRequest.requestId.notnull}")
             String requestId
     ) {}
 }

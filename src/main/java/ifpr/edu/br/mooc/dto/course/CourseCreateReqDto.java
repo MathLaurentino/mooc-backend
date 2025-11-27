@@ -5,22 +5,22 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public record CourseCreateReqDto(
-        @NotBlank
+        @NotBlank(message = "{course.name.notblank}")
         String nome,
 
-        @NotBlank
+        @NotBlank(message = "{course.description.notblank}")
         String descricao,
 
-        @NotNull
+        @NotNull(message = "{course.knowledgeAreaId.notnull}")
         Long areaConhecimentoId,
 
-        @NotNull
+        @NotNull(message = "{course.campusId.notnull}")
         Long campusId,
 
-        @NotBlank
+        @NotBlank(message = "{course.professorName.notblank}")
         String nomeProfessor,
 
-        @NotNull
-        @Positive
+        @NotNull(message = "{course.workload.notnull}")
+        @Positive(message = "{course.workload.positive}")
         Integer cargaHoraria
 ) {}
