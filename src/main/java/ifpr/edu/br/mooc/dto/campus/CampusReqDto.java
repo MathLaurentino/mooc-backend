@@ -5,11 +5,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record CampusReqDto(
-        @NotBlank
-        @Size(min = 2, max = 255)
+        @NotBlank(message = "{campus.name.notblank}")
+        @Size(min = 2, max = 255, message = "{campus.name.size}")
         String name,
 
-        @NotNull
+        @NotNull(message = "{campus.visible.notnull}")
         boolean visible
-){
-}
+) {}

@@ -6,19 +6,19 @@ import org.hibernate.validator.constraints.br.CPF;
 import java.time.LocalDate;
 
 public record UpdateUserRequest(
-        @NotBlank(message = "Nome completo é obrigatório")
-        @Size(min = 3, max = 255)
+        @NotBlank(message = "{user.fullName.notblank}")
+        @Size(min = 3, max = 255, message = "{user.fullName.size}")
         String fullName,
 
-        @NotBlank(message = "CPF é obrigatório")
-        @CPF
+        @NotBlank(message = "{user.cpf.notblank}")
+        @CPF(message = "{user.cpf.invalid}")
         String cpf,
 
-        @NotNull(message = "Data de nascimento é obrigatório")
-        @Past(message = "Data de nascimento deve estar no passado")
+        @NotNull(message = "{user.birthDate.notnull}")
+        @Past(message = "{user.birthDate.past}")
         LocalDate birthDate,
 
-        @NotBlank(message = "Email é obrigatório")
-        @Email(message = "Email deve ser válido")
+        @NotBlank(message = "{user.email.notblank}")
+        @Email(message = "{user.email.invalid}")
         String email
 ) {}

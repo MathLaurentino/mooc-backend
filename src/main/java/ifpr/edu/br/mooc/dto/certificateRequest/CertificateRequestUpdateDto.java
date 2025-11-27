@@ -4,10 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 public record CertificateRequestUpdateDto(
-        @NotBlank(message = "Status é obrigatório")
-        @Pattern(regexp = "aprovado|reprovado", message = "Status deve ser 'aprovado' ou 'reprovado'")
+        @NotBlank(message = "{certificateRequest.status.notblank}")
+        @Pattern(regexp = "aprovado|reprovado", message = "{certificateRequest.status.pattern}")
         String status,
 
         String motivoReprovacao
-) {
-}
+) {}

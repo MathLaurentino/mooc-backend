@@ -1,17 +1,16 @@
 package ifpr.edu.br.mooc.dto.lesson;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record LessonCreateReqDto(
-        @NotBlank(message = "Título é obrigatório")
-        @Size(min=5, max = 100, message = "Título deve ter no mínimo 5 caracteres e no máximo 100 caracteres")
+        @NotBlank(message = "{lesson.title.notblank}")
+        @Size(min = 5, max = 100, message = "{lesson.title.size}")
         String titulo,
-        
-        @NotBlank(message = "Descrição é obrigatória")
+
+        @NotBlank(message = "{lesson.description.notblank}")
         String descricao,
-        
-        @NotBlank(message = "URL do vídeo é obrigatória")
+
+        @NotBlank(message = "{lesson.videoUrl.notblank}")
         String urlVideo
 ) {}

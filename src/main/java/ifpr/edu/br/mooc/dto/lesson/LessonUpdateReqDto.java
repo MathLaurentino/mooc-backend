@@ -4,13 +4,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record LessonUpdateReqDto(
-        @NotBlank(message = "Título é obrigatório")
-        @Size(max = 100, message = "Título deve ter no máximo 100 caracteres")
+        @NotBlank(message = "{lesson.title.notblank}")
+        @Size(max = 100, message = "{lesson.title.size}")
         String titulo,
-        
-        @NotBlank(message = "Descrição é obrigatória")
+
+        @NotBlank(message = "{lesson.description.notblank}")
         String descricao,
-        
-        @NotBlank(message = "URL do vídeo é obrigatória")
+
+        @NotBlank(message = "{lesson.videoUrl.notblank}")
         String urlVideo
 ) {}

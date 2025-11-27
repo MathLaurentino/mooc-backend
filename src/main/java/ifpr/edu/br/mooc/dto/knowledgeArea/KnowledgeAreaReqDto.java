@@ -5,11 +5,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record KnowledgeAreaReqDto(
-        @NotBlank
-        @Size(min = 2, max = 255)
+        @NotBlank(message = "{knowledgeArea.name.notblank}")
+        @Size(min = 2, max = 255, message = "{knowledgeArea.name.size}")
         String name,
 
-        @NotNull
+        @NotNull(message = "{knowledgeArea.visible.notnull}")
         boolean visible
-){
-}
+) {}

@@ -6,26 +6,26 @@ import org.hibernate.validator.constraints.br.CPF;
 import java.time.LocalDate;
 
 public record CreateUserRequest(
-        @NotBlank
-        @Size(min = 3, max = 255)
+        @NotBlank(message = "{user.fullName.notblank}")
+        @Size(min = 3, max = 255, message = "{user.fullName.size}")
         String fullName,
 
-        @NotBlank
-        @CPF
+        @NotBlank(message = "{user.cpf.notblank}")
+        @CPF(message = "{user.cpf.invalid}")
         String cpf,
 
-        @NotNull
-        @Past
+        @NotNull(message = "{user.birthDate.notnull}")
+        @Past(message = "{user.birthDate.past}")
         LocalDate birthDate,
 
-        @NotBlank
-        @Email
+        @NotBlank(message = "{user.email.notblank}")
+        @Email(message = "{user.email.invalid}")
         String email,
 
-        @NotBlank
+        @NotBlank(message = "{user.password.notblank}")
         @Pattern(
                 regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$",
-                message = "A senha deve ter no mínimo 8 caracteres, incluindo uma letra maiúscula e um número."
+                message = "{user.password.pattern}"
         )
         String password
 ) {}
